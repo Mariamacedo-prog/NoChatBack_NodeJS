@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-
+import path from "path";
 import dotenv from "dotenv";
 
 import { mongoConnect } from "./database/mongo";
@@ -10,6 +10,8 @@ dotenv.config();
 mongoConnect();
 
 const server = express();
+
+server.use(express.static(path.join(__dirname, "../public")));
 
 server.use(mainRoutes);
 
