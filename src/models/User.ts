@@ -1,11 +1,12 @@
 import { Schema, model, connection } from "mongoose";
 
-interface UserType {
+export interface UserType {
   email: string;
   passwordHash: string;
   token: string;
   name: string;
   description?: string;
+  avatar?: string;
   friends: [];
   idols: [];
   stalkers: [];
@@ -13,7 +14,7 @@ interface UserType {
   chats: [];
   pictures: [];
   publications: [];
-  aticles: [];
+  articles: [];
 }
 
 const schema = new Schema<UserType>({
@@ -22,6 +23,7 @@ const schema = new Schema<UserType>({
   token: { type: String, required: true },
   name: { type: String, required: true },
   description: String,
+  avatar: String,
   friends: [],
   idols: [],
   stalkers: [],
@@ -29,7 +31,7 @@ const schema = new Schema<UserType>({
   chats: [],
   pictures: [],
   publications: [],
-  aticles: [],
+  articles: [],
 });
 
 const modelName: string = "User";
