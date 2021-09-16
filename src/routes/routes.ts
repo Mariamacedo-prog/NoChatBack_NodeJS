@@ -8,6 +8,7 @@ router.get("/ping", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
 
+router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
 
 export default router;
