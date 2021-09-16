@@ -1,17 +1,13 @@
 import { Request, Response, Router } from "express";
-import User from "../models/User";
+import AuthValidator from "../validators/AuthValidator";
+import AuthController from "../controllers/AuthController";
 
 const router = Router();
 
-router.get("/ping", async (req: Request, res: Response) => {
-  const newUser = await User.create({
-    email: "teste2@gmail.com",
-    passwordHash: "kilson666",
-    token: "kilson666",
-    name: "Maria Macedo",
-  });
-  console.log("Novo usario", newUser);
+router.get("/ping", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
+
+router.post("/singup", AuthValidator.singup, AuthController.singup);
 
 export default router;
