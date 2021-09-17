@@ -3,6 +3,21 @@ import AuthValidator from "../validators/AuthValidator";
 import Auth from "../middlewares/Auth";
 import AuthController from "../controllers/AuthController";
 import UserController from "../controllers/UserController";
+import multer from "multer";
+
+const upload = multer({
+  dest: "./tmp",
+  fileFilter: (req, file, cd) => {
+    const allowed: string[] = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+    ];
+    cd(null, allowed.includes(file.mimetype));
+  },
+  limits: { fieldSize: 20000000 },
+});
 
 const router = Router();
 
@@ -13,4 +28,10 @@ router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
 //Rotas privadas
 router.get("/user/me", Auth.private, UserController.userInfo);
+router.post(
+  "/user/avatar",
+  upload.single("avatar"),
+  UserController.uploadAvatar
+);
+
 export default router;
