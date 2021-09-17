@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import AuthValidator from "../validators/AuthValidator";
+import UserValidator from "../validators/UserValidator";
 import Auth from "../middlewares/Auth";
 import AuthController from "../controllers/AuthController";
 import UserController from "../controllers/UserController";
@@ -31,7 +32,9 @@ router.get("/user/me", Auth.private, UserController.userInfo);
 router.post(
   "/user/avatar",
   upload.single("avatar"),
-  UserController.uploadAvatar
+  Auth.private,
+  UserValidator.editUserInfo,
+  UserController.updateUserInformation
 );
 
 export default router;
