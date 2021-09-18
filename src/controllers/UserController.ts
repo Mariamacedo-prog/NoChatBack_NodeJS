@@ -14,9 +14,14 @@ export default {
     let token = req.query.token as string;
     const user = await User.findOne({ token });
 
+    if (!user) {
+      res.json({ error: "Usuario invalido!" });
+      return;
+    }
+
     res.json(user);
   },
-  updateUserInformation: async (req: Request, res: Response) => {
+  editUserInfo: async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.json({ error: errors.mapped() });
@@ -37,7 +42,15 @@ export default {
     }
 
     if (data.name) {
-      userUpdate.name = data.name;
+      const userNameWithoutSpace = data.name.split(" ").join("_");
+
+      const checkUserName = await User.findOne({ name: userNameWithoutSpace });
+      if (checkUserName) {
+        res.json({ error: "Username já existe" });
+        return;
+      }
+
+      userUpdate.name = userNameWithoutSpace;
     }
 
     if (data.password) {

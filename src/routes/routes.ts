@@ -30,11 +30,11 @@ router.post("/singup", AuthValidator.singup, AuthController.singup);
 //Rotas privadas
 router.get("/user/me", Auth.private, UserController.userInfo);
 router.post(
-  "/user/avatar",
+  "/user/me",
   upload.single("avatar"),
   Auth.private,
   UserValidator.editUserInfo,
-  UserController.updateUserInformation
+  UserController.editUserInfo
 );
 
 export default router;

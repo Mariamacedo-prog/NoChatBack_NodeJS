@@ -23,7 +23,7 @@ export default {
       trim: true,
       notEmpty: true,
       isLength: {
-        options: { min: 2 },
+        options: { min: 2, max: 30 },
       },
       errorMessage: "Nome precisa ter no mínimo 2 caracteres.",
     },

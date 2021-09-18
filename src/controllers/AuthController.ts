@@ -43,11 +43,20 @@ export default {
     }
     const data = matchedData(req);
 
-    const user = await User.findOne({ email: data.email });
-
-    if (user) {
+    const userEmail = await User.findOne({ email: data.email });
+    if (userEmail) {
       res.json({
         error: { email: { msg: "E-mail já existe!" } },
+      });
+      return;
+    }
+
+    const userNameWithoutSpace = data.name.split(" ").join("_");
+
+    const userName = await User.findOne({ name: userNameWithoutSpace });
+    if (userName) {
+      res.json({
+        error: { email: { msg: "Username já existe!" } },
       });
       return;
     }
@@ -56,14 +65,13 @@ export default {
     const payload = (Date.now() + Math.random()).toString();
     const token = await bcrypt.hash(payload, 10);
 
-    console.log(token);
-
     const newUser = new User({
-      name: data.name,
+      name: userNameWithoutSpace,
       email: data.email,
       passwordHash,
       token,
     });
+
     await newUser.save();
 
     res.json({ token });
