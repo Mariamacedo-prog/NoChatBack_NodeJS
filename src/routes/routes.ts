@@ -27,7 +27,7 @@ router.get("/ping", (req: Request, res: Response) => {
 });
 router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
-//Rotas privadas
+//USER ROUTES
 router.get("/user/me", Auth.private, UserController.userInfo);
 router.post(
   "/user/me",
@@ -36,7 +36,9 @@ router.post(
   UserValidator.editUserInfo,
   UserController.editUserInfo
 );
-
 router.delete("/user/:id", UserController.deleteUser);
+router.get("/user/:id", Auth.private, UserController.anotherUsers);
+router.get("/users", Auth.private, UserController.findAllUsers);
+//
 
 export default router;

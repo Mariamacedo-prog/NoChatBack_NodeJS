@@ -84,4 +84,26 @@ export default {
 
     res.json({});
   },
+  anotherUsers: async (req: Request, res: Response) => {
+    let id = req.params.id;
+
+    const user = await User.findOne({ _id: id });
+
+    if (!user) {
+      res.json({ error: "Usuario invalido!" });
+      return;
+    }
+
+    res.json(user);
+  },
+  findAllUsers: async (req: Request, res: Response) => {
+    const users = await User.find({});
+
+    if (!users) {
+      res.json({ error: "Usuario invalido!" });
+      return;
+    }
+
+    res.json({ users, total: users.length });
+  },
 };
