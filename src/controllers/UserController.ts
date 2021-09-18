@@ -42,7 +42,7 @@ export default {
     }
 
     if (data.name) {
-      const userNameWithoutSpace = data.name.split(" ").join("_");
+      const userNameWithoutSpace = data.name.split(" ").join("_").toLowerCase();
 
       const checkUserName = await User.findOne({ name: userNameWithoutSpace });
       if (checkUserName) {
@@ -76,5 +76,12 @@ export default {
     await userUpdate.save();
 
     res.json(userUpdate);
+  },
+  deleteUser: async (req: Request, res: Response) => {
+    let id = req.params.id;
+
+    await User.findOneAndDelete({ _id: id });
+
+    res.json({});
   },
 };

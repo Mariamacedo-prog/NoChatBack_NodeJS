@@ -37,4 +37,6 @@ router.post(
   UserController.editUserInfo
 );
 
+router.delete("/user/:id", UserController.deleteUser);
+
 export default router;

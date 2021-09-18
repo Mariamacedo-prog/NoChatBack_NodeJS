@@ -51,7 +51,7 @@ export default {
       return;
     }
 
-    const userNameWithoutSpace = data.name.split(" ").join("_");
+    const userNameWithoutSpace = data.name.split(" ").join("_").toLowerCase();
 
     const userName = await User.findOne({ name: userNameWithoutSpace });
     if (userName) {
