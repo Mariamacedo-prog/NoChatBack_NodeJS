@@ -97,12 +97,22 @@ export default {
     res.json(user);
   },
   findAllUsers: async (req: Request, res: Response) => {
-    const users = await User.find({});
+    let { offset = 0, limit = 15, q } = req.query;
+    let total = 0;
 
-    if (!users) {
-      res.json({ error: "Usuario invalido!" });
-      return;
+    let filters: any = {};
+
+    if (q) {
+      filters.name = { $regex: q, $options: "i" };
     }
+
+    const usersTotal = await User.find(filters).exec();
+    total = usersTotal.length;
+
+    const users = await User.find(filters)
+      .skip(parseInt(offset as string))
+      .limit(parseInt(limit as string))
+      .exec();
 
     res.json({ users, total: users.length });
   },
