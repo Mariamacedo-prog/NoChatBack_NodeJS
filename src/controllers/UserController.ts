@@ -19,7 +19,7 @@ export default {
       return;
     }
 
-    res.json(user);
+    res.json({ user });
   },
   editUserInfo: async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -70,12 +70,12 @@ export default {
 
       await unlink(req.file.path);
 
-      userUpdate.avatar = `${process.env.SERVER_URL}/media/${filename}`;
+      userUpdate.avatar = `${filename}`;
     }
 
     await userUpdate.save();
 
-    res.json(userUpdate);
+    res.json({ user: userUpdate });
   },
   deleteUser: async (req: Request, res: Response) => {
     let id = req.params.id;
@@ -84,17 +84,17 @@ export default {
 
     res.json({});
   },
-  anotherUsers: async (req: Request, res: Response) => {
-    let id = req.params.id;
+  findOneUser: async (req: Request, res: Response) => {
+    let userName = req.params.name;
 
-    const user = await User.findOne({ _id: id });
+    const user = await User.findOne({ name: userName });
 
     if (!user) {
       res.json({ error: "Usuario invalido!" });
       return;
     }
 
-    res.json(user);
+    res.json({ user });
   },
   findAllUsers: async (req: Request, res: Response) => {
     let { offset = 0, limit = 15, q } = req.query;
@@ -114,6 +114,6 @@ export default {
       .limit(parseInt(limit as string))
       .exec();
 
-    res.json({ users, total: users.length });
+    res.json({ users, total });
   },
 };

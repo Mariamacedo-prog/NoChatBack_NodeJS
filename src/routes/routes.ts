@@ -1,9 +1,11 @@
 import { Request, Response, Router } from "express";
 import AuthValidator from "../validators/AuthValidator";
 import UserValidator from "../validators/UserValidator";
+import PubliValidator from "../validators/PubliValidator";
 import Auth from "../middlewares/Auth";
 import AuthController from "../controllers/AuthController";
 import UserController from "../controllers/UserController";
+import PubliController from "../controllers/PubliController";
 import multer from "multer";
 
 const upload = multer({
@@ -27,7 +29,7 @@ router.get("/ping", (req: Request, res: Response) => {
 });
 router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
-//USER ROUTES
+//USERS ROUTES
 router.get("/user/me", Auth.private, UserController.userInfo);
 router.post(
   "/user/me",
@@ -37,8 +39,14 @@ router.post(
   UserController.editUserInfo
 );
 router.delete("/user/:id", UserController.deleteUser);
-router.get("/user/:id", Auth.private, UserController.anotherUsers);
+router.get("/user/:name", Auth.private, UserController.findOneUser);
 router.get("/users", Auth.private, UserController.findAllUsers);
-//
-
+//PUBLICATIONS ROUTES
+router.post(
+  "/publication",
+  upload.single("image"),
+  Auth.private,
+  PubliValidator.createPublication,
+  PubliController.createPublication
+);
 export default router;
