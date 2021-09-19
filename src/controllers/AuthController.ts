@@ -51,12 +51,12 @@ export default {
       return;
     }
 
-    const userNameWithoutSpace = data.name.split(" ").join("_").toLowerCase();
+    const username = data.name.split(" ").join("_").toLowerCase();
 
-    const userName = await User.findOne({ name: userNameWithoutSpace });
-    if (userName) {
+    const searchName = await User.findOne({ name: username });
+    if (searchName) {
       res.json({
-        error: { email: { msg: "Username já existe!" } },
+        error: { name: { msg: "Username já existe!" } },
       });
       return;
     }
@@ -66,7 +66,7 @@ export default {
     const token = await bcrypt.hash(payload, 10);
 
     const newUser = new User({
-      name: userNameWithoutSpace,
+      name: username,
       email: data.email,
       passwordHash,
       token,

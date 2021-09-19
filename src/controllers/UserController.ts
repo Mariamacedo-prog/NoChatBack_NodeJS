@@ -62,7 +62,7 @@ export default {
     }
 
     if (req.file) {
-      const filename = `${req.file.filename}.jpg`;
+      const filename = `avatar${req.file.filename}.jpg`;
       await sharp(req.file.path)
         .resize(300, 300)
         .toFormat("jpg")

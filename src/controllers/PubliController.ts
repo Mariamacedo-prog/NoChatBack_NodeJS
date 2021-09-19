@@ -4,7 +4,7 @@ import sharp from "sharp";
 import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
-import Publication, { PublicationType } from "../models/Publication";
+import Publication from "../models/Publication";
 const { unlink } = promises;
 
 dotenv.config();
@@ -40,9 +40,9 @@ export default {
     }
 
     if (req.file) {
-      const filename = `${req.file.filename}.jpg`;
+      const filename = `${data.category}${req.file.filename}.jpg`;
       await sharp(req.file.path)
-        .resize(700, 700)
+        .resize(500, 500)
         .toFormat("jpg")
         .toFile(`./public/media/${filename}`);
 
@@ -59,5 +59,21 @@ export default {
     await newPublication.save();
 
     res.json({ publication: newPublication });
+  },
+  findAllPublications: async (req: Request, res: Response) => {
+    let { offset = 0, limit = 15, cat } = req.query;
+
+    let filters: any = {};
+
+    if (cat) {
+      filters.category = { $regex: cat, $options: "i" };
+    }
+
+    const publication = await Publication.find(filters)
+      .skip(parseInt(offset as string))
+      .limit(parseInt(limit as string))
+      .exec();
+
+    res.json({ publication, total: publication.length });
   },
 };

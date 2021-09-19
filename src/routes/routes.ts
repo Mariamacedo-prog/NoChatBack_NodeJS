@@ -49,4 +49,5 @@ router.post(
   PubliValidator.createPublication,
   PubliController.createPublication
 );
+router.get("/publications", Auth.private, PubliController.findAllPublications);
 export default router;
