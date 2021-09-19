@@ -5,6 +5,7 @@ import sharp from "sharp";
 import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
+import Publication from "../models/Publication";
 const { unlink } = promises;
 
 dotenv.config();
@@ -77,16 +78,15 @@ export default {
 
     res.json({ user: userUpdate });
   },
-  deleteUser: async (req: Request, res: Response) => {
+  deleteAction: async (req: Request, res: Response) => {
     let id = req.params.id;
 
     await User.findOneAndDelete({ _id: id });
 
     res.json({});
   },
-  findOneUser: async (req: Request, res: Response) => {
+  listOneUser: async (req: Request, res: Response) => {
     let userName = req.params.name;
-
     const user = await User.findOne({ name: userName });
 
     if (!user) {
@@ -94,9 +94,11 @@ export default {
       return;
     }
 
-    res.json({ user });
+    const publication = await Publication.find({ userId: user._id });
+
+    res.json({ user, publication });
   },
-  findAllUsers: async (req: Request, res: Response) => {
+  listAllUsers: async (req: Request, res: Response) => {
     let { offset = 0, limit = 15, q } = req.query;
     let total = 0;
 

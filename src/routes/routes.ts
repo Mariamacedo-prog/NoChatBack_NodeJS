@@ -27,35 +27,40 @@ const router = Router();
 router.get("/ping", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
+
 //AUTH ROUTES
 router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
+
 //USERS ROUTES
 router.get("/user/me", Auth.private, UserController.userInfo);
-router.post(
+router.put(
   "/user/me",
   upload.single("avatar"),
   Auth.private,
   UserValidator.editUserInfo,
   UserController.editUserInfo
 );
-router.delete("/user/:id", UserController.deleteUser);
-router.get("/user/:name", Auth.private, UserController.findOneUser);
-router.get("/users", Auth.private, UserController.findAllUsers);
+router.delete("/user/:id", UserController.deleteAction);
+router.get("/user/:name", Auth.private, UserController.listOneUser);
+router.get("/users", Auth.private, UserController.listAllUsers);
+
 //PUBLICATIONS ROUTES
 router.post(
   "/publication",
   upload.single("image"),
   Auth.private,
-  PubliValidator.createPublication,
-  PubliController.createPublication
+  PubliValidator.createAction,
+  PubliController.createAction
 );
-router.get("/publication/:id", Auth.private, PubliController.findPublication);
-router.get("/publications", Auth.private, PubliController.findAllPublications);
 router.put(
   "/publication/:id",
   Auth.private,
   PubliValidator.editAction,
   PubliController.editAction
 );
+router.get("/publication/:id", Auth.private, PubliController.findPublication);
+router.delete("/publication/:id", PubliController.deleteAction);
+router.get("/publications", Auth.private, PubliController.findAllPublications);
+
 export default router;

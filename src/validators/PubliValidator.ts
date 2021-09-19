@@ -1,7 +1,7 @@
 import { checkSchema } from "express-validator";
 
 export default {
-  createPublication: checkSchema({
+  createAction: checkSchema({
     token: {
       notEmpty: true,
     },

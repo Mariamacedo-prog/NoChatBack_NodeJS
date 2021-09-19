@@ -11,7 +11,7 @@ const { unlink } = promises;
 dotenv.config();
 
 export default {
-  createPublication: async (req: Request, res: Response) => {
+  createAction: async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.json({ error: errors.mapped() });
@@ -61,6 +61,54 @@ export default {
 
     res.json({ publication: newPublication });
   },
+  editAction: async (req: Request, res: Response) => {
+    let { description, title, token } = req.body;
+    let id = req.params.id;
+
+    const publication = await Publication.findOne({ _id: id });
+    if (!publication) {
+      res.json({ error: "Publicação não encontrada!" });
+      return;
+    }
+
+    const loggedUser = await User.findOne({ token });
+    if (loggedUser._id != publication.userId) {
+      res.json({ error: "Publicação não pertence a este usuario!" });
+      return;
+    }
+
+    if (description) {
+      publication.description = description;
+    }
+
+    if (publication.category == "article" && title) {
+      publication.title = title;
+    }
+
+    await publication.save();
+
+    res.json({ publication });
+  },
+  deleteAction: async (req: Request, res: Response) => {
+    let id = req.params.id;
+
+    const user = await User.findOne({ token: req.body.token });
+
+    const publication = await Publication.findOne({ _id: id });
+
+    if (!publication) {
+      res.json({ error: "Publicação não encontrada" });
+      return;
+    }
+
+    if (user._id != publication.userId) {
+      res.json({ error: "Esta publição não pertence ao usuario" });
+      return;
+    }
+
+    await publication.remove();
+    res.json({});
+  },
   findPublication: async (req: Request, res: Response) => {
     let id = req.params.id;
 
@@ -96,33 +144,5 @@ export default {
       .exec();
 
     res.json({ publication, total: publication.length });
-  },
-  editAction: async (req: Request, res: Response) => {
-    let { description, title, token } = req.body;
-    let id = req.params.id;
-
-    const publication = await Publication.findOne({ _id: id });
-    if (!publication) {
-      res.json({ error: "Publicação não encontrada!" });
-      return;
-    }
-
-    const loggedUser = await User.findOne({ token });
-    if (loggedUser._id != publication.userId) {
-      res.json({ error: "Publicação não pertence a este usuario!" });
-      return;
-    }
-
-    if (description) {
-      publication.description = description;
-    }
-
-    if (publication.category == "article" && title) {
-      publication.title = title;
-    }
-
-    await publication.save();
-
-    res.json({ publication });
   },
 };
