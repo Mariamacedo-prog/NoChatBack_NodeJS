@@ -98,53 +98,31 @@ export default {
     res.json({ publication, total: publication.length });
   },
   editAction: async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.json({ error: errors.mapped() });
-      return;
-    }
-    const data = matchedData(req);
+    let { description, title, token } = req.body;
+    let id = req.params.id;
 
-    const user = await User.findOne({ token: data.token });
-
-    let newPublication = new Publication();
-
-    if (
-      data.category !== "publication" &&
-      data.category !== "article" &&
-      data.category !== "picture"
-    ) {
-      res.json({ error: "Categoria não existente" });
+    const publication = await Publication.findOne({ _id: id });
+    if (!publication) {
+      res.json({ error: "Publicação não encontrada!" });
       return;
     }
 
-    newPublication.category = data.category;
-    newPublication.userId = user._id;
-    newPublication.description = data.description;
-
-    if (data.category === "article") {
-      newPublication.title = data.title;
-    }
-
-    if (req.file) {
-      const filename = `${data.category}${req.file.filename}.jpg`;
-      await sharp(req.file.path)
-        .resize(500, 500)
-        .toFormat("jpg")
-        .toFile(`./public/media/${filename}`);
-
-      await unlink(req.file.path);
-
-      newPublication.image = `${filename}`;
-    }
-
-    if (data.category == "picture" && !req.file) {
-      res.json({ error: "Escolha uma foto para fazer a publicação!" });
+    const loggedUser = await User.findOne({ token });
+    if (loggedUser._id != publication.userId) {
+      res.json({ error: "Publicação não pertence a este usuario!" });
       return;
     }
 
-    await newPublication.save();
+    if (description) {
+      publication.description = description;
+    }
 
-    res.json({ publication: newPublication });
+    if (publication.category == "article" && title) {
+      publication.title = title;
+    }
+
+    await publication.save();
+
+    res.json({ publication });
   },
 };

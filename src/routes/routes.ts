@@ -54,7 +54,6 @@ router.get("/publication/:id", Auth.private, PubliController.findPublication);
 router.get("/publications", Auth.private, PubliController.findAllPublications);
 router.put(
   "/publication/:id",
-  upload.single("image"),
   Auth.private,
   PubliValidator.editAction,
   PubliController.editAction

@@ -35,11 +35,6 @@ export default {
     token: {
       notEmpty: true,
     },
-    category: {
-      optional: true,
-      notEmpty: true,
-      errorMessage: "Tipo de publicação não existente",
-    },
     description: {
       optional: true,
       notEmpty: true,
@@ -54,13 +49,6 @@ export default {
         options: { min: 2 },
       },
       errorMessage: "Titulo precisa ter no mínimo 2 caracteres.",
-    },
-    image: {
-      optional: true,
-      isLength: {
-        options: { min: 2 },
-      },
-      errorMessage: "Imagem com errro! Verifique e tente novamente!",
     },
   }),
 };
