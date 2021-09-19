@@ -27,6 +27,7 @@ const router = Router();
 router.get("/ping", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
+//AUTH ROUTES
 router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
 //USERS ROUTES
@@ -49,5 +50,13 @@ router.post(
   PubliValidator.createPublication,
   PubliController.createPublication
 );
+router.get("/publication/:id", Auth.private, PubliController.findPublication);
 router.get("/publications", Auth.private, PubliController.findAllPublications);
+router.put(
+  "/publication/:id",
+  upload.single("image"),
+  Auth.private,
+  PubliValidator.editAction,
+  PubliController.editAction
+);
 export default router;
