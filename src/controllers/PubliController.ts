@@ -67,51 +67,61 @@ export default {
     let { description, title, token } = req.body;
     let id = req.params.id;
 
-    const publication = await Publication.findOne({ _id: id });
-    if (!publication) {
-      res.status(404).json({ error: "Publicação não encontrada!" });
-      return;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const publication = await Publication.findOne({ _id: id });
+      if (!publication) {
+        res.status(404).json({ error: "Publicação não encontrada!" });
+        return;
+      }
+
+      const loggedUser = await User.findOne({ token });
+      if (loggedUser._id != publication.userId) {
+        res
+          .status(400)
+          .json({ error: "Publicação não pertence a este usuario!" });
+        return;
+      }
+
+      if (description) {
+        publication.description = description;
+      }
+
+      if (publication.category == "article" && title) {
+        publication.title = title;
+      }
+
+      await publication.save();
+
+      res.json({ publication });
     }
 
-    const loggedUser = await User.findOne({ token });
-    if (loggedUser._id != publication.userId) {
-      res
-        .status(400)
-        .json({ error: "Publicação não pertence a este usuario!" });
-      return;
-    }
-
-    if (description) {
-      publication.description = description;
-    }
-
-    if (publication.category == "article" && title) {
-      publication.title = title;
-    }
-
-    await publication.save();
-
-    res.json({ publication });
+    res.status(404).json({ error: "Publicação não encontrada!" });
   },
   deleteAction: async (req: Request, res: Response) => {
     let id = req.params.id;
 
-    const user = await User.findOne({ token: req.body.token });
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const user = await User.findOne({ token: req.body.token });
 
-    const publication = await Publication.findOne({ _id: id });
+      const publication = await Publication.findOne({ _id: id });
 
-    if (!publication) {
-      res.status(404).json({ error: "Publicação não encontrada" });
-      return;
+      if (!publication) {
+        res.status(404).json({ error: "Publicação não encontrada" });
+        return;
+      }
+
+      if (user._id != publication.userId) {
+        res
+          .status(400)
+          .json({ error: "Esta publição não pertence ao usuario" });
+        return;
+      }
+
+      await publication.remove();
+      res.json({});
     }
 
-    if (user._id != publication.userId) {
-      res.status(400).json({ error: "Esta publição não pertence ao usuario" });
-      return;
-    }
-
-    await publication.remove();
-    res.json({});
+    res.status(404).json({ error: "Publicação não encontrada" });
   },
   findPublication: async (req: Request, res: Response) => {
     let id = req.params.id;
@@ -146,6 +156,11 @@ export default {
       .skip(parseInt(offset as string))
       .limit(parseInt(limit as string))
       .exec();
+
+    if (publication.length == 0) {
+      res.json({ error: "Nenhuma publicação encontrada" });
+      return;
+    }
 
     res.json({ publication, total: publication.length });
   },

@@ -7,6 +7,7 @@ import { MulterError } from "multer";
 import { mongoConnect } from "./database/mongo";
 
 import mainRoutes from "./routes/routes";
+import chatRoutes from "./routes/chatRoutes";
 
 dotenv.config();
 mongoConnect();
@@ -19,6 +20,7 @@ server.use(express.urlencoded({ extended: true }));
 server.use(express.static(path.join(__dirname, "../public")));
 
 server.use(mainRoutes);
+server.use(chatRoutes);
 
 server.use((req: Request, res: Response) => {
   res.status(404);

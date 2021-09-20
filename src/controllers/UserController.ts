@@ -84,9 +84,12 @@ export default {
   deleteAction: async (req: Request, res: Response) => {
     let id = req.params.id;
 
-    await User.findOneAndDelete({ _id: id });
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      await User.findOneAndDelete({ _id: id });
+      res.json({});
+    }
 
-    res.json({});
+    res.status(404).json({ error: "Usuario não encontrado" });
   },
   listOneUser: async (req: Request, res: Response) => {
     let userName = req.params.name;
@@ -125,37 +128,55 @@ export default {
   },
   followUser: async (req: Request, res: Response) => {
     const currentUser = await User.findOne({ token: req.body.token });
-    const user = await User.findOne({ name: req.params.name });
+    const user = await User.findOne({ _id: req.params.id });
 
-    if (currentUser.name === req.params.name) {
-      res.status(403).json({ error: "Você não pode seguir você mesmo!" });
-      return;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      if (!user) {
+        res.status(404).json({ error: "Usuario não existe!" });
+        return;
+      }
+
+      if (currentUser._id == req.params.id) {
+        res.status(403).json({ error: "Você não pode seguir você mesmo!" });
+        return;
+      }
+
+      if (!user.followers.includes(currentUser._id)) {
+        await currentUser.updateOne({ $push: { followings: user._id } });
+        await user.updateOne({ $push: { followers: currentUser._id } });
+        res.json({});
+        return;
+      }
+
+      res.status(403).json({ error: "Você já segue este usuario!" });
     }
 
-    if (!user.followers.includes(currentUser._id)) {
-      await currentUser.updateOne({ $push: { followings: user._id } });
-      await user.updateOne({ $push: { followers: currentUser._id } });
-      res.json({});
-      return;
-    }
-    res.status(403).json({ error: "Você já segue este usuario!" });
+    res.status(404).json({ error: "Usuario não encontrado!" });
   },
   unfollowUser: async (req: Request, res: Response) => {
     const currentUser = await User.findOne({ token: req.body.token });
-    const user = await User.findOne({ name: req.params.name });
+    const user = await User.findOne({ _id: req.params.id });
 
-    if (currentUser.name === req.params.name) {
-      res.status(403).json({ error: "Você não pode seguir você mesmo!" });
-      return;
-    }
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      if (!user) {
+        res.status(404).json({ error: "Usuario não existe!" });
+        return;
+      }
 
-    if (user.followers.includes(currentUser._id)) {
-      await currentUser.updateOne({ $pull: { followings: user._id } });
-      await user.updateOne({ $pull: { followers: currentUser._id } });
-      res.json({});
-      return;
+      if (currentUser._id == req.params.id) {
+        res.status(403).json({ error: "Você não pode seguir você mesmo!" });
+        return;
+      }
+
+      if (user.followers.includes(currentUser._id)) {
+        await currentUser.updateOne({ $pull: { followings: user._id } });
+        await user.updateOne({ $pull: { followers: currentUser._id } });
+        res.json({});
+        return;
+      }
+      res.status(403).json({ error: "Você não segue este usuario!" });
     }
-    res.status(403).json({ error: "Você não segue este usuario!" });
+    res.status(404).json({ error: "Usuario não encontrado!" });
   },
   likePost: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
