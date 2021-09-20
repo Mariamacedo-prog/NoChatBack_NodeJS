@@ -62,5 +62,9 @@ router.put(
 router.get("/publication/:id", Auth.private, PubliController.findPublication);
 router.delete("/publication/:id", PubliController.deleteAction);
 router.get("/publications", Auth.private, PubliController.findAllPublications);
+//FOLLOW;
+router.put("/follow/:name", Auth.private, UserController.followUser);
+//UNFOLLOW;
+router.put("/unfollow/:name", Auth.private, UserController.unfollowUser);
 
 export default router;

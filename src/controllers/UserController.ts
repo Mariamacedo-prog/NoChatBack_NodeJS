@@ -20,7 +20,9 @@ export default {
       return;
     }
 
-    res.json({ user });
+    const { passwordHash, ...other } = user._doc;
+
+    res.json({ user: other });
   },
   editUserInfo: async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -35,7 +37,7 @@ export default {
     if (data.email) {
       const checkEmail = await User.findOne({ email: data.email });
       if (checkEmail) {
-        res.json({ error: "E-mail já existe" });
+        res.status(400).json({ error: "E-mail já existe" });
         return;
       }
 
@@ -47,7 +49,7 @@ export default {
 
       const checkUserName = await User.findOne({ name: userNameWithoutSpace });
       if (checkUserName) {
-        res.json({ error: "Username já existe" });
+        res.status(400).json({ error: "Username já existe" });
         return;
       }
 
@@ -94,9 +96,11 @@ export default {
       return;
     }
 
+    const { passwordHash, token, ...other } = user._doc;
+
     const publication = await Publication.find({ userId: user._id });
 
-    res.json({ user, publication });
+    res.json({ user: other, publication });
   },
   listAllUsers: async (req: Request, res: Response) => {
     let { offset = 0, limit = 15, q } = req.query;
@@ -117,5 +121,39 @@ export default {
       .exec();
 
     res.json({ users, total });
+  },
+  followUser: async (req: Request, res: Response) => {
+    const currentUser = await User.findOne({ token: req.body.token });
+    const user = await User.findOne({ name: req.params.name });
+
+    if (currentUser.name === req.params.name) {
+      res.status(403).json({ error: "Você não pode seguir você mesmo!" });
+      return;
+    }
+
+    if (!user.followers.includes(currentUser._id)) {
+      await currentUser.updateOne({ $push: { followings: user._id } });
+      await user.updateOne({ $push: { followers: currentUser._id } });
+      res.json({});
+      return;
+    }
+    res.status(403).json({ error: "Você já segue este usuario!" });
+  },
+  unfollowUser: async (req: Request, res: Response) => {
+    const currentUser = await User.findOne({ token: req.body.token });
+    const user = await User.findOne({ name: req.params.name });
+
+    if (currentUser.name === req.params.name) {
+      res.status(403).json({ error: "Você não pode seguir você mesmo!" });
+      return;
+    }
+
+    if (user.followers.includes(currentUser._id)) {
+      await currentUser.updateOne({ $pull: { followings: user._id } });
+      await user.updateOne({ $pull: { followers: currentUser._id } });
+      res.json({});
+      return;
+    }
+    res.status(403).json({ error: "Você não segue este usuario!" });
   },
 };

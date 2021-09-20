@@ -7,7 +7,8 @@ export interface UserType {
   name: string;
   description?: string;
   avatar?: string;
-  friends: [];
+  followings: [];
+  followers: [];
   chats: [];
 }
 
@@ -19,7 +20,8 @@ const schema = new Schema<UserType>(
     name: { type: String, required: true, unique: true },
     description: String,
     avatar: String,
-    friends: [],
+    followings: [],
+    followers: [],
     chats: [],
   },
   { timestamps: true }

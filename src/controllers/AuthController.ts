@@ -16,13 +16,13 @@ export default {
 
     const user = await User.findOne({ email: data.email });
     if (!user) {
-      res.json({ error: "E-mail e/ou senha invalido!" });
+      res.status(400).json({ error: "E-mail e/ou senha invalido!" });
       return;
     }
 
     const match = await bcrypt.compare(data.password, user.passwordHash);
     if (!match) {
-      res.json({ error: "E-mail e/ou senha invalido!" });
+      res.status(400).json({ error: "E-mail e/ou senha invalido!" });
       return;
     }
 
@@ -36,7 +36,6 @@ export default {
   },
   singup: async (req: Request, res: Response) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
       res.json({ error: errors.mapped() });
       return;
@@ -74,6 +73,6 @@ export default {
 
     await newUser.save();
 
-    res.json({ token });
+    res.status(201).json({ token });
   },
 };

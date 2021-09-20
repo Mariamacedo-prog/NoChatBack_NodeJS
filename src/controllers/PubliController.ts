@@ -28,7 +28,7 @@ export default {
       data.category !== "article" &&
       data.category !== "picture"
     ) {
-      res.json({ error: "Categoria não existente" });
+      res.status(400).json({ error: "Categoria não existente" });
       return;
     }
 
@@ -53,13 +53,15 @@ export default {
     }
 
     if (data.category == "picture" && !req.file) {
-      res.json({ error: "Escolha uma foto para fazer a publicação!" });
+      res
+        .status(400)
+        .json({ error: "Escolha uma foto para fazer a publicação!" });
       return;
     }
 
     await newPublication.save();
 
-    res.json({ publication: newPublication });
+    res.status(201).json({ publication: newPublication });
   },
   editAction: async (req: Request, res: Response) => {
     let { description, title, token } = req.body;
@@ -67,13 +69,15 @@ export default {
 
     const publication = await Publication.findOne({ _id: id });
     if (!publication) {
-      res.json({ error: "Publicação não encontrada!" });
+      res.status(404).json({ error: "Publicação não encontrada!" });
       return;
     }
 
     const loggedUser = await User.findOne({ token });
     if (loggedUser._id != publication.userId) {
-      res.json({ error: "Publicação não pertence a este usuario!" });
+      res
+        .status(400)
+        .json({ error: "Publicação não pertence a este usuario!" });
       return;
     }
 
@@ -97,12 +101,12 @@ export default {
     const publication = await Publication.findOne({ _id: id });
 
     if (!publication) {
-      res.json({ error: "Publicação não encontrada" });
+      res.status(404).json({ error: "Publicação não encontrada" });
       return;
     }
 
     if (user._id != publication.userId) {
-      res.json({ error: "Esta publição não pertence ao usuario" });
+      res.status(400).json({ error: "Esta publição não pertence ao usuario" });
       return;
     }
 
@@ -116,13 +120,13 @@ export default {
       const publication = await Publication.findOne({ _id: id });
 
       if (!publication) {
-        res.json({ error: "Publicação não encontrada!" });
+        res.status(404).json({ error: "Publicação não encontrada!" });
         return;
       }
 
       res.json({ publication });
     } else {
-      res.json({ error: "Publicação não encontrada!" });
+      res.status(404).json({ error: "Publicação não encontrada!" });
     }
   },
   findAllPublications: async (req: Request, res: Response) => {
