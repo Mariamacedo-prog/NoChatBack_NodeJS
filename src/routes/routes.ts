@@ -27,11 +27,9 @@ const router = Router();
 router.get("/ping", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
-
 //AUTH ROUTES
 router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
-
 //USERS ROUTES
 router.get("/user/me", Auth.private, UserController.userInfo);
 router.put(
@@ -44,7 +42,6 @@ router.put(
 router.delete("/user/:id", UserController.deleteAction);
 router.get("/user/:name", Auth.private, UserController.listOneUser);
 router.get("/users", Auth.private, UserController.listAllUsers);
-
 //PUBLICATIONS ROUTES
 router.post(
   "/publication",
@@ -66,5 +63,6 @@ router.get("/publications", Auth.private, PubliController.findAllPublications);
 router.put("/follow/:name", Auth.private, UserController.followUser);
 //UNFOLLOW;
 router.put("/unfollow/:name", Auth.private, UserController.unfollowUser);
-
+//LIKE;
+router.put("/like/:id", Auth.private, UserController.likePost);
 export default router;

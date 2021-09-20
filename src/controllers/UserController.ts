@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult, matchedData } from "express-validator";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import sharp from "sharp";
 import dotenv from "dotenv";
@@ -155,5 +156,26 @@ export default {
       return;
     }
     res.status(403).json({ error: "Você não segue este usuario!" });
+  },
+  likePost: async (req: Request, res: Response) => {
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      const user = await User.findOne({ token: req.body.token });
+      const publication = await Publication.findOne({ _id: req.params.id });
+
+      if (!publication) {
+        res.status(404).json({ error: "Publicação não encontrada!" });
+        return;
+      }
+      if (!publication.like.includes(user._id)) {
+        await publication.updateOne({ $push: { like: user._id } });
+      } else {
+        await publication.updateOne({ $pull: { like: user._id } });
+      }
+
+      res.json({});
+      return;
+    }
+
+    res.json({ error: "Publicação não encontrada" });
   },
 };
