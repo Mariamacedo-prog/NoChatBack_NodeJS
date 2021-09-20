@@ -142,8 +142,8 @@ export default {
       }
 
       if (!user.followers.includes(currentUser._id)) {
-        await currentUser.updateOne({ $push: { followings: user._id } });
-        await user.updateOne({ $push: { followers: currentUser._id } });
+        await currentUser.updateOne({ $push: { followings: user._id + "" } });
+        await user.updateOne({ $push: { followers: currentUser._id + "" } });
         res.json({});
         return;
       }
@@ -169,8 +169,8 @@ export default {
       }
 
       if (user.followers.includes(currentUser._id)) {
-        await currentUser.updateOne({ $pull: { followings: user._id } });
-        await user.updateOne({ $pull: { followers: currentUser._id } });
+        await currentUser.updateOne({ $pull: { followings: user._id + "" } });
+        await user.updateOne({ $pull: { followers: currentUser._id + "" } });
         res.json({});
         return;
       }
@@ -188,9 +188,9 @@ export default {
         return;
       }
       if (!publication.like.includes(user._id)) {
-        await publication.updateOne({ $push: { like: user._id } });
+        await publication.updateOne({ $push: { like: user._id + "" } });
       } else {
-        await publication.updateOne({ $pull: { like: user._id } });
+        await publication.updateOne({ $pull: { like: user._id + "" } });
       }
 
       res.json({});

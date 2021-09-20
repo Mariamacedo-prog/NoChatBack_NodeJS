@@ -1,12 +1,10 @@
 import { Request, Response, Router } from "express";
-import AuthValidator from "../validators/AuthValidator";
-import UserValidator from "../validators/UserValidator";
-import PubliValidator from "../validators/PubliValidator";
 import Auth from "../middlewares/Auth";
-import AuthController from "../controllers/AuthController";
-import UserController from "../controllers/UserController";
-import PubliController from "../controllers/PubliController";
+import ChatController from "../controllers/ChatController";
 
 const router = Router();
+
+router.post("/direct/newchat", Auth.private, ChatController.createAction);
+router.put("/direct/:id", Auth.private, ChatController.sendMessage);
 
 export default router;

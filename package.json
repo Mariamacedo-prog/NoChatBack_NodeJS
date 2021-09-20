@@ -16,7 +16,8 @@
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^1.4.7",
     "@types/node": "^16.9.1",
-    "@types/sharp": "^0.29.2"
+    "@types/sharp": "^0.29.2",
+    "@types/uuid": "^8.3.1"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
