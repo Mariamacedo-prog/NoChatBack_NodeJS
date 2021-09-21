@@ -5,6 +5,6 @@ import ChatController from "../controllers/ChatController";
 const router = Router();
 
 router.post("/direct/newchat", Auth.private, ChatController.createAction);
-router.put("/direct/chat", Auth.private, ChatController.sendMessage);
+router.put("/direct/chat", Auth.private, ChatController.sendMessageAction);
 
 export default router;

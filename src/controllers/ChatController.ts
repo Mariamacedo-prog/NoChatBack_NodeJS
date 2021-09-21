@@ -4,13 +4,19 @@ import mongoose from "mongoose";
 import Chat from "../models/Chat";
 import { v4 as uuidv4 } from "uuid";
 
-type ChatType = {
+type ChatUserType = {
   chatId: string;
   avatar: string;
   title: string;
   with: string;
   lastMessage: string;
   lastMessageDate: Date;
+};
+
+type ChatType = {
+  _id: string;
+  messages: [];
+  users: [];
 };
 
 export default {
@@ -29,14 +35,16 @@ export default {
         return;
       }
 
-      let usersChat: any[] = [];
+      let usersChat: ChatType[] = [];
 
       const getChat = await Chat.find({
         users: userId,
       });
 
-      getChat.map((i) =>
-        i.users.includes(currentUser._id + "") ? usersChat.push(i) : false
+      getChat.map((chatItem) =>
+        chatItem.users.includes(currentUser._id + "")
+          ? usersChat.push(chatItem)
+          : false
       );
 
       if (usersChat.length == 0) {
@@ -53,5 +61,5 @@ export default {
     }
     res.json({ error: "Não foi possível localizar o Chat!" });
   },
-  sendMessage: async (req: Request, res: Response) => {},
+  sendMessageAction: async (req: Request, res: Response) => {},
 };
