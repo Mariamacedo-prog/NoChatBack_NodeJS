@@ -4,29 +4,14 @@ import mongoose from "mongoose";
 import Chat from "../models/Chat";
 import { v4 as uuidv4 } from "uuid";
 
-/*
-User 
-chats: [
-    { chatId,
-    avatar,
-    lastMessage
-    lastMessageDate
-    title (nome da pessoa)
-    with (id da pessao)
-}
-];
-
-Chat
-_id,
-messages: [
-    { author,
-      msg,
-      date,
-      type,
-    }
-]
-users: [userID1, userID2]
- */
+type ChatType = {
+  chatId: string;
+  avatar: string;
+  title: string;
+  with: string;
+  lastMessage: string;
+  lastMessageDate: Date;
+};
 
 export default {
   createAction: async (req: Request, res: Response) => {
@@ -39,23 +24,34 @@ export default {
         res.json({ error: "Usuario não encontrado" });
         return;
       }
-
-      const verifyChat = await Chat.findOne({
-        users: userId && currentUser._id + "",
-      });
-      if (verifyChat) {
-        res.json({ chat: verifyChat });
+      if (!currentUser) {
+        res.json({ error: "Usuario não encontrado" });
         return;
       }
 
-      const newChat = await Chat.create({
-        users: [currentUser._id + "", userId],
+      let usersChat: any[] = [];
+
+      const getChat = await Chat.find({
+        users: userId,
       });
 
-      res.json({ chat: newChat });
-    } else {
-      res.status(404).json({ error: "Usuario não encontrado" });
+      getChat.map((i) =>
+        i.users.includes(currentUser._id + "") ? usersChat.push(i) : false
+      );
+
+      if (usersChat.length == 0) {
+        const newChat = await Chat.create({
+          users: [user._id + "", currentUser._id + ""],
+        });
+
+        res.json({ chat: newChat });
+        return;
+      }
+
+      res.json({ chat: usersChat });
+      return;
     }
+    res.json({ error: "Não foi possível localizar o Chat!" });
   },
   sendMessage: async (req: Request, res: Response) => {},
 };
