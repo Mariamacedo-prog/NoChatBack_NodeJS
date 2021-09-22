@@ -1,6 +1,6 @@
-import { Schema, model, connection } from "mongoose";
+import { Schema, model, connection, Document } from "mongoose";
 
-export interface PublicationType {
+export interface PublicationType extends Document {
   category: "publication" | "article" | "picture";
   userId: string;
   description: string;

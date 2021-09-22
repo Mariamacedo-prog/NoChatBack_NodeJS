@@ -1,6 +1,6 @@
-import { Schema, model, connection } from "mongoose";
+import { Schema, model, connection, Document } from "mongoose";
 
-export interface UserType {
+export interface UserType extends Document {
   email: string;
   passwordHash: string;
   token: string;
