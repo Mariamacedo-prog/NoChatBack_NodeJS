@@ -202,7 +202,7 @@ export default {
     res.json({ error: "Publicação não encontrado" });
   },
   deleteCommentAction: async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = req.params.id;
     const currentUser = await User.findOne({ token: req.body.token });
 
     const post = await Publication.findOne({
