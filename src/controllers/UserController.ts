@@ -92,8 +92,8 @@ export default {
     res.status(404).json({ error: "Usuario não encontrado" });
   },
   listOneUser: async (req: Request, res: Response) => {
-    let userName = req.params.name;
-    const user = await User.findOne({ name: userName });
+    let id = req.params.id;
+    const user = await User.findOne({ _id: id });
 
     if (!user) {
       res.json({ error: "Usuario invalido!" });

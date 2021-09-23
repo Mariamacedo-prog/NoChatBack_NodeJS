@@ -5,10 +5,19 @@ import sharp from "sharp";
 import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
+import { v4 as uuidv4 } from "uuid";
 import Publication from "../models/Publication";
 const { unlink } = promises;
 
 dotenv.config();
+
+interface MessageType {
+  author: string;
+  msg: string;
+  date: Date;
+  type: string;
+  id: string;
+}
 
 export default {
   createAction: async (req: Request, res: Response) => {
@@ -163,5 +172,71 @@ export default {
     }
 
     res.json({ publication, total: publication.length });
+  },
+  createCommentAction: async (req: Request, res: Response) => {
+    const { token, postId, type, msg } = req.body;
+
+    if (mongoose.Types.ObjectId.isValid(postId)) {
+      const currentUser = await User.findOne({ token });
+      const post = await Publication.findOne({ _id: postId });
+      if (!post) {
+        res.json({ error: "Publicação não encontrado" });
+        return;
+      }
+      let date = new Date();
+
+      await post.updateOne({
+        $push: {
+          comment: {
+            author: currentUser._id + "",
+            msg,
+            date,
+            type,
+            id: uuidv4(),
+          },
+        },
+      });
+      res.json({});
+      return;
+    }
+    res.json({ error: "Publicação não encontrado" });
+  },
+  deleteCommentAction: async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const currentUser = await User.findOne({ token: req.body.token });
+
+    const post = await Publication.findOne({
+      "comment.id": id,
+    });
+
+    if (!post) {
+      res.status(404).json({ error: "Mensagem não encontrada!" });
+      return;
+    }
+
+    const comment: string[] = [];
+    post.comment.map((msg: MessageType) =>
+      msg.id == id ? comment.push(msg.author) : false
+    );
+
+    if (comment[0] == currentUser._id + "") {
+      await Publication.updateOne(
+        {
+          _id: post._id,
+          "comment.id": id,
+        },
+        {
+          $set: {
+            "comment.$.msg": "Esta mensagem foi apagada!",
+            "comment.$.type": "deleted",
+          },
+        }
+      );
+
+      res.json({});
+    } else {
+      res.status(404).json({ error: "Você não pode apagar essa mensagem!" });
+      return;
+    }
   },
 };

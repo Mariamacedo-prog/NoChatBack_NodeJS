@@ -40,7 +40,7 @@ router.put(
   UserController.editUserInfo
 );
 router.delete("/user/:id", UserController.deleteAction);
-router.get("/user/:name", Auth.private, UserController.listOneUser);
+router.get("/user/:id", Auth.private, UserController.listOneUser);
 router.get("/users", Auth.private, UserController.listAllUsers);
 //PUBLICATIONS ROUTES
 router.post(
@@ -59,10 +59,9 @@ router.put(
 router.get("/publication/:id", Auth.private, PubliController.findPublication);
 router.delete("/publication/:id", PubliController.deleteAction);
 router.get("/publications", Auth.private, PubliController.findAllPublications);
-//FOLLOW;
+
 router.put("/follow/:id", Auth.private, UserController.followUser);
-//UNFOLLOW;
 router.put("/unfollow/:id", Auth.private, UserController.unfollowUser);
-//LIKE;
-router.put("/like/:id", Auth.private, UserController.likePost);
+router.put("/comment", Auth.private, PubliController.createCommentAction);
+router.put("/comment/:id", Auth.private, PubliController.deleteCommentAction);
 export default router;

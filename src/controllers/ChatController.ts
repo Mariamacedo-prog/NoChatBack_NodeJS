@@ -4,6 +4,14 @@ import mongoose from "mongoose";
 import Chat, { ChatType, ChatUserType } from "../models/Chat";
 import { v4 as uuidv4 } from "uuid";
 
+interface MessageType {
+  author: string;
+  msg: string;
+  date: Date;
+  type: string;
+  id: string;
+}
+
 export default {
   createAction: async (req: Request, res: Response) => {
     const { token, userId } = req.body;
@@ -123,37 +131,6 @@ export default {
           );
         }
 
-        /* if (currentUser.chats.includes({ chatId: usersChat[0] })) {
-          await User.updateOne(
-            { _id: currentUser._id, "chats.chatId": usersChat[0] },
-            {
-              $set: {
-                avatar: user.avatar ? user.avatar : "noChat.jpg",
-                lastMessage: msg,
-                lastMessageDate: date,
-                title: user.name,
-              },
-            }
-          );
-        } else {
-          await User.updateOne(
-            { _id: currentUser._id },
-            {
-              $push: {
-                chats: {
-                  chatId: usersChat[0],
-                  avatar: user.avatar ? user.avatar : "noChat.jpg",
-                  lastMessage: msg,
-                  lastMessageDate: date,
-                  title: user.name,
-                  with: user._id + "",
-                  id: uuidv4(),
-                },
-              },
-            }
-          );
-        }*/
-
         const findChatCurrent = currentUser.chats.some(
           (value: ChatUserType) => value.chatId == usersChat[0]
         );
@@ -195,6 +172,44 @@ export default {
       }
     } else {
       res.json({ error: "Não foi possível encaminhar a mensagem" });
+    }
+  },
+  deleteAction: async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const currentUser = await User.findOne({ token: req.body.token });
+
+    const findChat = await Chat.findOne({
+      "messages.id": id,
+    });
+
+    if (!findChat) {
+      res.status(404).json({ error: "Mensagem não encontrada!" });
+      return;
+    }
+
+    const message: string[] = [];
+    findChat.messages.map((msg: MessageType) =>
+      msg.id == id ? message.push(msg.author) : false
+    );
+
+    if (message[0] == currentUser._id + "") {
+      await Chat.updateOne(
+        {
+          _id: findChat._id,
+          "messages.id": id,
+        },
+        {
+          $set: {
+            "messages.$.msg": "Esta mensagem foi apagada!",
+            "messages.$.type": "deleted",
+          },
+        }
+      );
+
+      res.json({});
+    } else {
+      res.status(404).json({ error: "Você não pode apagar essa mensagem!" });
+      return;
     }
   },
 };
