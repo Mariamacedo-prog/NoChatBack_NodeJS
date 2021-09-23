@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": " nodemon -e ts,json src/server.ts"
+    "start": " nodemon -e ts,json src/server.ts",
+    "build": "tsc --build"
   },
   "author": "",
   "license": "ISC",
