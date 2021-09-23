@@ -5,6 +5,8 @@
 .env
 BDestrutura.txt
 
+package-lock.json
+
 # testing
 /coverage
 
