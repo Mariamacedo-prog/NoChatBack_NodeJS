@@ -42,11 +42,11 @@ export default {
           chatId: uuidv4(),
         });
 
-        res.json({ chat: newChat });
+        res.json(newChat);
         return;
       }
 
-      res.json({ chat: usersChat });
+      res.json(usersChat);
       return;
     }
     res.json({ error: "Não foi possível localizar o Chat!" });

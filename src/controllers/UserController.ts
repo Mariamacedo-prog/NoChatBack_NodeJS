@@ -23,7 +23,11 @@ export default {
 
     const { passwordHash, ...other } = user._doc;
 
-    res.json({ user: other });
+    const publication = await Publication.find({ userId: user._id });
+
+    other.publications = publication;
+
+    res.json(other);
   },
   editUserInfo: async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -79,7 +83,7 @@ export default {
 
     await userUpdate.save();
 
-    res.json({ user: userUpdate });
+    res.json(userUpdate);
   },
   deleteAction: async (req: Request, res: Response) => {
     let id = req.params.id;
@@ -104,7 +108,9 @@ export default {
 
     const publication = await Publication.find({ userId: user._id });
 
-    res.json({ user: other, publication });
+    other.publications = publication;
+
+    res.json(other);
   },
   listAllUsers: async (req: Request, res: Response) => {
     let { offset = 0, limit = 15, q } = req.query;

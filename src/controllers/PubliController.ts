@@ -70,7 +70,7 @@ export default {
 
     await newPublication.save();
 
-    res.status(201).json({ publication: newPublication });
+    res.status(201).json(newPublication);
   },
   editAction: async (req: Request, res: Response) => {
     let { description, title, token } = req.body;
@@ -101,7 +101,7 @@ export default {
 
       await publication.save();
 
-      res.json({ publication });
+      res.json(publication);
     }
 
     res.status(404).json({ error: "Publicação não encontrada!" });
@@ -143,7 +143,7 @@ export default {
         return;
       }
 
-      res.json({ publication });
+      res.json(publication);
     } else {
       res.status(404).json({ error: "Publicação não encontrada!" });
     }
@@ -161,17 +161,17 @@ export default {
       filters.category = { $regex: cat, $options: "i" };
     }
 
-    const publication = await Publication.find(filters)
+    const publications = await Publication.find(filters)
       .skip(parseInt(offset as string))
       .limit(parseInt(limit as string))
       .exec();
 
-    if (publication.length == 0) {
+    if (publications.length == 0) {
       res.json({ error: "Nenhuma publicação encontrada" });
       return;
     }
 
-    res.json({ publication, total: publication.length });
+    res.json({ publications, total: publications.length });
   },
   createCommentAction: async (req: Request, res: Response) => {
     const { token, postId, type, msg } = req.body;
