@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User";
 
 export default {
-  singin: async (req: Request, res: Response) => {
+  signin: async (req: Request, res: Response) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -34,7 +34,7 @@ export default {
 
     res.json({ token, email: data.email });
   },
-  singup: async (req: Request, res: Response) => {
+  signup: async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.json({ error: errors.mapped() });

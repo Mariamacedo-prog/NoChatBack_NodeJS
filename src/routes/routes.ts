@@ -15,8 +15,8 @@ router.get("/", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
 //AUTH ROUTES
-router.post("/singin", AuthValidator.singin, AuthController.singin);
-router.post("/singup", AuthValidator.singup, AuthController.singup);
+router.post("/signin", AuthValidator.signin, AuthController.signin);
+router.post("/signup", AuthValidator.signup, AuthController.signup);
 //USERS ROUTES
 router.get("/user/me", Auth.private, UserController.userInfo);
 router.put(

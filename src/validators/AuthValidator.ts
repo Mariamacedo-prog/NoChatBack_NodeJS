@@ -1,7 +1,7 @@
 import { checkSchema } from "express-validator";
 
 export default {
-  singup: checkSchema({
+  signup: checkSchema({
     email: {
       isEmail: true,
       normalizeEmail: true,
@@ -22,7 +22,7 @@ export default {
       errorMessage: "Nome precisa ter no mínimo 2 caracteres.",
     },
   }),
-  singin: checkSchema({
+  signin: checkSchema({
     email: {
       isEmail: true,
       normalizeEmail: true,
