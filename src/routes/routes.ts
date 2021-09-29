@@ -11,6 +11,9 @@ import PubliController from "../controllers/PubliController";
 
 const router = Router();
 
+router.get("/ping", (req: Request, res: Response) => {
+  res.json({ pong: true });
+});
 //AUTH ROUTES
 router.post("/singin", AuthValidator.singin, AuthController.singin);
 router.post("/singup", AuthValidator.singup, AuthController.singup);
