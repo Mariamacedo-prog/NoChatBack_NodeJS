@@ -1,4 +1,4 @@
-import { Request, Response, ErrorRequestHandler } from "express";
+import { Request } from "express";
 import multer from "multer";
 import path from "path";
 import crypto from "crypto";
@@ -29,7 +29,7 @@ const storageTypes = {
       secretAccessKey: process.env.AWS_SECRETACCESSKEY as string,
       region: "us-east-2",
     }),
-    bucket: process.env.BUCKET_NAME as string,
+    bucket: "nochat",
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     key: (req, file, cb) => {
@@ -47,14 +47,19 @@ const storageTypes = {
 export default {
   dest: path.resolve(__dirname, "..", "..", "tmp"),
   storage: storageTypes["s3"],
-  fileFilter: (req: Request, file: any, cd: any) => {
+  fileFilter: (req: Request, file: any, cb: any) => {
     const allowed: string[] = [
       "image/png",
       "image/jpeg",
       "image/jpg",
       "image/webp",
     ];
-    cd(null, allowed.includes(file.mimetype));
+
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type."));
+    }
   },
   limits: { fieldSize: MAX_SIZE_TWO_MEGABYTES },
 };

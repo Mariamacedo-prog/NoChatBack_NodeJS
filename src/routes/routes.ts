@@ -11,7 +11,7 @@ import PubliController from "../controllers/PubliController";
 
 const router = Router();
 
-router.get("/ping", (req: Request, res: Response) => {
+router.get("/", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
 //AUTH ROUTES
