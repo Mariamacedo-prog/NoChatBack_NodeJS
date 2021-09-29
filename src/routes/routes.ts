@@ -3,24 +3,11 @@ import AuthValidator from "../validators/AuthValidator";
 import UserValidator from "../validators/UserValidator";
 import PubliValidator from "../validators/PubliValidator";
 import Auth from "../middlewares/Auth";
+import multer from "multer";
+import upload from "../config/multer";
 import AuthController from "../controllers/AuthController";
 import UserController from "../controllers/UserController";
 import PubliController from "../controllers/PubliController";
-import multer from "multer";
-
-const upload = multer({
-  dest: "./tmp",
-  fileFilter: (req, file, cd) => {
-    const allowed: string[] = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/webp",
-    ];
-    cd(null, allowed.includes(file.mimetype));
-  },
-  limits: { fieldSize: 20000000 },
-});
 
 const router = Router();
 
@@ -34,7 +21,7 @@ router.post("/singup", AuthValidator.singup, AuthController.singup);
 router.get("/user/me", Auth.private, UserController.userInfo);
 router.put(
   "/user/me",
-  upload.single("avatar"),
+  multer(upload).single("avatar"),
   Auth.private,
   UserValidator.editUserInfo,
   UserController.editUserInfo
@@ -45,7 +32,7 @@ router.get("/users", Auth.private, UserController.listAllUsers);
 //PUBLICATIONS ROUTES
 router.post(
   "/publication",
-  upload.single("image"),
+  multer(upload).single("image"),
   Auth.private,
   PubliValidator.createAction,
   PubliController.createAction

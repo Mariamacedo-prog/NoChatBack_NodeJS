@@ -1,13 +1,11 @@
 import { Request, Response } from "express";
 import { validationResult, matchedData } from "express-validator";
 import mongoose from "mongoose";
-import sharp from "sharp";
 import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
 import { v4 as uuidv4 } from "uuid";
 import Publication from "../models/Publication";
-const { unlink } = promises;
 
 dotenv.config();
 
@@ -17,6 +15,19 @@ interface MessageType {
   date: Date;
   type: string;
   id: string;
+}
+
+interface ImageAws {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  bucket: string;
+  key: string;
+  acl: string;
+  contentType: string;
+  location: string;
 }
 
 export default {
@@ -50,15 +61,9 @@ export default {
     }
 
     if (req.file) {
-      const filename = `${data.category}${req.file.filename}.jpg`;
-      await sharp(req.file.path)
-        .resize(500, 500)
-        .toFormat("jpg")
-        .toFile(`./public/media/${filename}`);
+      const fileKey: any = req.file;
 
-      await unlink(req.file.path);
-
-      newPublication.image = `${filename}`;
+      newPublication.image = `${fileKey.location}`;
     }
 
     if (data.category == "picture" && !req.file) {

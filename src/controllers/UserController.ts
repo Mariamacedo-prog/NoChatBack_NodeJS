@@ -70,15 +70,9 @@ export default {
     }
 
     if (req.file) {
-      const filename = `avatar${req.file.filename}.jpg`;
-      await sharp(req.file.path)
-        .resize(300, 300)
-        .toFormat("jpg")
-        .toFile(`./public/media/${filename}`);
+      const fileKey: any = req.file;
 
-      await unlink(req.file.path);
-
-      userUpdate.avatar = `${filename}`;
+      userUpdate.avatar = `${fileKey.location}`;
     }
 
     await userUpdate.save();
