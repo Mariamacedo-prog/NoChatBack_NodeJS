@@ -25,8 +25,8 @@ const storageTypes = {
   }),
   s3: multerS3({
     s3: new aws.S3({
-      accessKeyId: process.env.AWS_ACCESSKEY,
-      secretAccessKey: process.env.AWS_SECRETACCESSKEY,
+      accessKeyId: process.env.AWS_ACCESSKEY as string,
+      secretAccessKey: process.env.AWS_SECRETACCESSKEY as string,
       region: "us-east-2",
     }),
     bucket: process.env.BUCKET_NAME as string,
