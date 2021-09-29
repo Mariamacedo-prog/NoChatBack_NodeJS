@@ -1,0 +1,2 @@
+web:ts-node/src/server.ts
+

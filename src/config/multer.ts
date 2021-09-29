@@ -29,7 +29,7 @@ const storageTypes = {
       secretAccessKey: process.env.AWS_SECRETACCESSKEY as string,
       region: "us-east-2",
     }),
-    bucket: "nochat",
+    bucket: process.env.BUCKET_NAME as string,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     key: (req, file, cb) => {
@@ -54,12 +54,7 @@ export default {
       "image/jpg",
       "image/webp",
     ];
-
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Invalid file type."));
-    }
+    cb(null, allowed.includes(file.mimetype));
   },
   limits: { fieldSize: MAX_SIZE_TWO_MEGABYTES },
 };

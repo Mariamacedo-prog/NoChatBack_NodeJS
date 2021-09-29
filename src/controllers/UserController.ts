@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { validationResult, matchedData } from "express-validator";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import sharp from "sharp";
 import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
