@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
 import Publication from "../models/Publication";
+import sharp from "sharp";
 const { unlink } = promises;
 
 dotenv.config();
@@ -69,9 +70,15 @@ export default {
     }
 
     if (req.file) {
-      const fileKey: any = req.file;
+      const filename = `avatar${req.file.filename}.jpg`;
+      await sharp(req.file.path)
+        .resize(300, 300)
+        .toFormat("jpg")
+        .toFile(`./public/media/${filename}`);
 
-      userUpdate.avatar = `${fileKey.location}`;
+      await unlink(req.file.path);
+
+      userUpdate.avatar = `${filename}`;
     }
 
     await userUpdate.save();

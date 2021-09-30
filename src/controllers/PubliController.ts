@@ -6,6 +6,8 @@ import { promises } from "fs";
 import User from "../models/User";
 import { v4 as uuidv4 } from "uuid";
 import Publication from "../models/Publication";
+import sharp from "sharp";
+const { unlink } = promises;
 
 dotenv.config();
 
@@ -15,19 +17,6 @@ interface MessageType {
   date: Date;
   type: string;
   id: string;
-}
-
-interface ImageAws {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-  bucket: string;
-  key: string;
-  acl: string;
-  contentType: string;
-  location: string;
 }
 
 export default {
@@ -61,9 +50,15 @@ export default {
     }
 
     if (req.file) {
-      const fileKey: any = req.file;
+      const filename = `${data.category}${req.file.filename}.jpg`;
+      await sharp(req.file.path)
+        .resize(500, 500)
+        .toFormat("jpg")
+        .toFile(`./public/media/${filename}`);
 
-      newPublication.image = `${fileKey.location}`;
+      await unlink(req.file.path);
+
+      newPublication.avatar = `${filename}`;
     }
 
     if (data.category == "picture" && !req.file) {
