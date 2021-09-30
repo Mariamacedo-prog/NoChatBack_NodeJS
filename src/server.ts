@@ -11,7 +11,11 @@ mongoConnect();
 //
 const server = express();
 
-server.use(cors());
+var corsOptions = {
+  origin: "*",
+};
+
+server.use(cors(corsOptions));
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.static(path.join(__dirname, "..", "public")));
