@@ -36,8 +36,6 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 server.use(errorHandler);
 
-const port = process.env.PORT || 5000;
-
-server.listen(port, () => {
+server.listen(process.env.PORT || 5000, () => {
   console.log(`Porta: ${process.env.PORT}`);
 });
