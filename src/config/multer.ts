@@ -42,7 +42,7 @@ const storageTypes = {
 
 export default {
   dest: path.resolve(__dirname, "..", "..", "tmp"),
-  storage: storageTypes["s3"],
+  storage: storageTypes.s3,
   fileFilter: (req: Request, file: any, cb: any) => {
     const allowed: string[] = [
       "image/png",

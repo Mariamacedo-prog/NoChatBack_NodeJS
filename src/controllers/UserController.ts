@@ -50,15 +50,15 @@ export default {
     }
 
     if (data.name) {
-      const userNameWithoutSpace = data.name.split(" ").join("_").toLowerCase();
+      const userName = data.name.split(" ").join("_").toLowerCase();
 
-      const checkUserName = await User.findOne({ name: userNameWithoutSpace });
+      const checkUserName = await User.findOne({ name: userName });
       if (checkUserName) {
         res.status(400).json({ error: "Username já existe" });
         return;
       }
 
-      userUpdate.name = userNameWithoutSpace;
+      userUpdate.name = userName;
     }
 
     if (data.password) {

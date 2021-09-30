@@ -10,14 +10,14 @@ import PubliController from "../controllers/PubliController";
 
 const upload = multer({
   dest: "./tmp",
-  fileFilter: (req, file, cd) => {
+  fileFilter: (req, file, cb) => {
     const allowed: string[] = [
       "image/png",
       "image/jpeg",
       "image/jpg",
       "image/webp",
     ];
-    cd(null, allowed.includes(file.mimetype));
+    cb(null, allowed.includes(file.mimetype));
   },
   limits: { fieldSize: 20000000 },
 });
