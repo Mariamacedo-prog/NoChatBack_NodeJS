@@ -3,12 +3,9 @@ import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import { MulterError } from "multer";
-
 import { mongoConnect } from "./database/mongo";
-
 import mainRoutes from "./routes/routes";
 import chatRoutes from "./routes/chatRoutes";
-
 dotenv.config();
 mongoConnect();
 //
