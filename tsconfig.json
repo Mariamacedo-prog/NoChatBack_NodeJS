@@ -1,5 +1,4 @@
 {
-  "extends": "@araclx/tsconfig",
   "compilerOptions": {
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
