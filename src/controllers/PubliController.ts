@@ -5,9 +5,8 @@ import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
 import Publication from "../models/Publication";
-import { v4 as uuidv4 } from "uuid";
-
 import sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
 const { unlink } = promises;
 
 dotenv.config();
