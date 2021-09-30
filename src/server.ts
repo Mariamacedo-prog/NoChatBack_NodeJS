@@ -40,6 +40,6 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 server.use(errorHandler);
 
-server.listen(process.env.PORT || 3000, () => {
+server.listen(process.env.PORT || 80, () => {
   console.log(`Porta: ${process.env.PORT}`);
 });
