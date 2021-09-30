@@ -5,9 +5,7 @@ import dotenv from "dotenv";
 import { promises } from "fs";
 import User from "../models/User";
 import Publication from "../models/Publication";
-import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
-const { unlink } = promises;
 
 dotenv.config();
 
@@ -50,15 +48,9 @@ export default {
     }
 
     if (req.file) {
-      const filename = `${data.category}${req.file.filename}.jpg`;
-      await sharp(req.file.path)
-        .resize(500, 500)
-        .toFormat("jpg")
-        .toFile(`./public/media/${filename}`);
+      const fileKey: any = req.file;
 
-      await unlink(req.file.path);
-
-      newPublication.image = `${filename}`;
+      newPublication.image = `${fileKey.location}`;
     }
 
     if (data.category == "picture" && !req.file) {

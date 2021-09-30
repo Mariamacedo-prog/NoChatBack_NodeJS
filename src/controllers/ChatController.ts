@@ -102,7 +102,7 @@ export default {
               $set: {
                 "chats.$.avatar": currentUser.avatar
                   ? currentUser.avatar
-                  : "noChat.jpg",
+                  : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuox6vatPBS6w8edvrLbqXzHimyKXOVejMQ&usqp=CAU",
                 "chats.$.lastMessage": msg,
                 "chats.$.lastMessageDate": date,
                 "chats.$.title": currentUser.name,
@@ -119,7 +119,7 @@ export default {
                   chatId: usersChat[0],
                   avatar: currentUser.avatar
                     ? currentUser.avatar
-                    : "noChat.jpg",
+                    : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuox6vatPBS6w8edvrLbqXzHimyKXOVejMQ&usqp=CAU",
                   lastMessage: msg,
                   lastMessageDate: date,
                   title: currentUser.name,
@@ -140,7 +140,9 @@ export default {
             { _id: currentUser._id, "chats.chatId": usersChat[0] },
             {
               $set: {
-                "chats.$.avatar": user.avatar ? user.avatar : "noChat.jpg",
+                "chats.$.avatar": user.avatar
+                  ? user.avatar
+                  : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuox6vatPBS6w8edvrLbqXzHimyKXOVejMQ&usqp=CAU",
                 "chats.$.lastMessage": msg,
                 "chats.$.lastMessageDate": date,
                 "chats.$.title": user.name,
@@ -155,7 +157,9 @@ export default {
               $push: {
                 chats: {
                   chatId: usersChat[0],
-                  avatar: user.avatar ? user.avatar : "noChat.jpg",
+                  avatar: user.avatar
+                    ? user.avatar
+                    : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuox6vatPBS6w8edvrLbqXzHimyKXOVejMQ&usqp=CAU",
                   lastMessage: msg,
                   lastMessageDate: date,
                   title: user.name,
