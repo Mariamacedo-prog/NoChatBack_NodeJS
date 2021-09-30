@@ -4,9 +4,9 @@ import UserValidator from "../validators/UserValidator";
 import PubliValidator from "../validators/PubliValidator";
 import Auth from "../middlewares/Auth";
 import multer from "multer";
+import PubliController from "../controllers/PubliController";
 import AuthController from "../controllers/AuthController";
 import UserController from "../controllers/UserController";
-import PubliController from "../controllers/PubliController";
 
 const upload = multer({
   dest: "./tmp",
