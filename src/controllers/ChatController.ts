@@ -209,7 +209,6 @@ export default {
       res.json({});
     } else {
       res.status(404).json({ error: "Você não pode apagar essa mensagem!" });
-      return;
     }
   },
 };

@@ -91,6 +91,7 @@ export default {
     if (mongoose.Types.ObjectId.isValid(id)) {
       await User.findOneAndDelete({ _id: id });
       res.json({});
+      return;
     }
 
     res.status(404).json({ error: "Usuario não encontrado" });
@@ -155,6 +156,7 @@ export default {
       }
 
       res.status(403).json({ error: "Você já segue este usuario!" });
+      return;
     }
 
     res.status(404).json({ error: "Usuario não encontrado!" });
@@ -181,6 +183,7 @@ export default {
         return;
       }
       res.status(403).json({ error: "Você não segue este usuario!" });
+      return;
     }
     res.status(404).json({ error: "Usuario não encontrado!" });
   },

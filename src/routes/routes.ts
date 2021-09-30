@@ -35,8 +35,9 @@ router.get("/user/me", Auth.private, UserController.userInfo);
 router.put(
   "/user/me",
   upload.single("avatar"),
-  Auth.private,
   UserValidator.editUserInfo,
+  Auth.private,
+
   UserController.editUserInfo
 );
 router.delete("/user/:id", UserController.deleteAction);
@@ -47,14 +48,14 @@ router.get("/publications", Auth.private, PubliController.findAllPublications);
 router.post(
   "/publication",
   upload.single("image"),
-  Auth.private,
   PubliValidator.createAction,
+  Auth.private,
   PubliController.createAction
 );
 router.put(
   "/publication/edit/:id",
-  Auth.private,
   PubliValidator.editAction,
+  Auth.private,
   PubliController.editAction
 );
 router.delete(
@@ -66,6 +67,7 @@ router.get("/publication/:id", Auth.private, PubliController.findPublication);
 
 router.put("/follow/:id", Auth.private, UserController.followUser);
 router.put("/unfollow/:id", Auth.private, UserController.unfollowUser);
+router.put("/like/:id", Auth.private, UserController.likePost);
 router.put("/comment", Auth.private, PubliController.createCommentAction);
 router.put("/comment/:id", Auth.private, PubliController.deleteCommentAction);
 export default router;
