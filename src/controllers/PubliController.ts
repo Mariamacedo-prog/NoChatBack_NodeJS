@@ -58,7 +58,7 @@ export default {
 
       await unlink(req.file.path);
 
-      newPublication.avatar = `${filename}`;
+      newPublication.image = `${filename}`;
     }
 
     if (data.category == "picture" && !req.file) {
