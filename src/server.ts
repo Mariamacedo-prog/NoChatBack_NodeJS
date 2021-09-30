@@ -27,7 +27,6 @@ server.use((req: Request, res: Response) => {
   res.status(404);
   res.json({ error: "Erro!! Página encontrada" });
 });
-
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(400);
 
