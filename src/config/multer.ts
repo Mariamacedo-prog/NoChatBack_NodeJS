@@ -15,7 +15,7 @@ const storageTypes = {
     destination: (req, file, cb) => {
       cb(null, path.resolve(__dirname, "..", "..", "tmp"));
     },
-    filename: (req, file: any, cb) => {
+    filename: (req, file, cb) => {
       crypto.randomBytes(16, (err, hash) => {
         file.key = `${hash.toString("hex")}-${file.originalname}`;
 
@@ -43,7 +43,7 @@ const storageTypes = {
 export default {
   dest: path.resolve(__dirname, "..", "..", "tmp"),
   storage: storageTypes.s3,
-  fileFilter: (req: Request, file: any, cb: any) => {
+  fileFilter: (req: Request, file, cb) => {
     const allowed: string[] = [
       "image/png",
       "image/jpeg",
