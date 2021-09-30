@@ -37,7 +37,6 @@ export default {
     },
     description: {
       optional: true,
-      notEmpty: true,
       isLength: {
         options: { min: 2 },
       },

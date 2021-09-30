@@ -43,6 +43,7 @@ router.delete("/user/:id", UserController.deleteAction);
 router.get("/user/:id", Auth.private, UserController.listOneUser);
 router.get("/users", Auth.private, UserController.listAllUsers);
 //PUBLICATIONS ROUTES
+router.get("/publications", Auth.private, PubliController.findAllPublications);
 router.post(
   "/publication",
   upload.single("image"),
@@ -51,14 +52,17 @@ router.post(
   PubliController.createAction
 );
 router.put(
-  "/publication/:id",
+  "/publication/edit/:id",
   Auth.private,
   PubliValidator.editAction,
   PubliController.editAction
 );
+router.delete(
+  "/publication/delete/:id",
+  Auth.private,
+  PubliController.deleteAction
+);
 router.get("/publication/:id", Auth.private, PubliController.findPublication);
-router.delete("/publication/:id", PubliController.deleteAction);
-router.get("/publications", Auth.private, PubliController.findAllPublications);
 
 router.put("/follow/:id", Auth.private, UserController.followUser);
 router.put("/unfollow/:id", Auth.private, UserController.unfollowUser);

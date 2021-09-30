@@ -73,8 +73,8 @@ export default {
     res.status(201).json(newPublication);
   },
   editAction: async (req: Request, res: Response) => {
-    let { description, title, token } = req.body;
-    let id = req.params.id;
+    let { description, title } = req.body;
+    let { id } = req.params;
 
     if (mongoose.Types.ObjectId.isValid(id)) {
       const publication = await Publication.findOne({ _id: id });
@@ -82,15 +82,13 @@ export default {
         res.status(404).json({ error: "Publicação não encontrada!" });
         return;
       }
-
-      const loggedUser = await User.findOne({ token });
+      const loggedUser = await User.findOne({ token: req.query.token });
       if (loggedUser._id != publication.userId) {
         res
           .status(400)
           .json({ error: "Publicação não pertence a este usuario!" });
         return;
       }
-
       if (description) {
         publication.description = description;
       }
@@ -102,16 +100,16 @@ export default {
       await publication.save();
 
       res.json(publication);
+      return;
     }
 
     res.status(404).json({ error: "Publicação não encontrada!" });
   },
   deleteAction: async (req: Request, res: Response) => {
-    let id = req.params.id;
-
+    let { id } = req.params;
+    let { token } = req.body;
     if (mongoose.Types.ObjectId.isValid(id)) {
-      const user = await User.findOne({ token: req.body.token });
-
+      const user = await User.findOne({ token });
       const publication = await Publication.findOne({ _id: id });
 
       if (!publication) {
@@ -119,7 +117,7 @@ export default {
         return;
       }
 
-      if (user._id != publication.userId) {
+      if (user._id + "" != publication.userId) {
         res
           .status(400)
           .json({ error: "Esta publição não pertence ao usuario" });
@@ -127,10 +125,11 @@ export default {
       }
 
       await publication.remove();
-      res.json({});
-    }
 
-    res.status(404).json({ error: "Publicação não encontrada" });
+      res.json({});
+    } else {
+      res.status(404).json({ error: "Publicação não encontrada!" });
+    }
   },
   findPublication: async (req: Request, res: Response) => {
     let id = req.params.id;
