@@ -3,7 +3,6 @@ import { validationResult, matchedData } from "express-validator";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import { promises } from "fs";
 import User from "../models/User";
 import Publication from "../models/Publication";
 
@@ -30,14 +29,14 @@ export default {
   editUserInfo: async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.json({ error: errors.mapped() });
+      res.status(400).json({ error: errors.mapped() });
       return;
     }
     const data = matchedData(req);
 
     const userUpdate = await User.findOne({ token: data.token });
 
-    if (data.email) {
+    if (data.email && data.email != userUpdate.email) {
       const checkEmail = await User.findOne({ email: data.email });
       if (checkEmail) {
         res.status(400).json({ error: "E-mail já existe" });
@@ -49,14 +48,16 @@ export default {
 
     if (data.name) {
       const userName = data.name.split(" ").join("_").toLowerCase();
+      if (userName !== userUpdate.name) {
+        const checkUserName = await User.findOne({ name: userName });
 
-      const checkUserName = await User.findOne({ name: userName });
-      if (checkUserName) {
-        res.status(400).json({ error: "Username já existe" });
-        return;
+        if (checkUserName) {
+          res.status(400).json({ error: "Username já existe" });
+          return;
+        }
+
+        userUpdate.name = userName;
       }
-
-      userUpdate.name = userName;
     }
 
     if (data.password) {
@@ -90,20 +91,25 @@ export default {
   },
   listOneUser: async (req: Request, res: Response) => {
     let id = req.params.id;
-    const user = await User.findOne({ _id: id });
 
-    if (!user) {
-      res.json({ error: "Usuario invalido!" });
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      const user = await User.findOne({ _id: id });
+      if (!user) {
+        res.json({ error: "Usuario invalido!" });
+        return;
+      }
+
+      const { passwordHash, token, ...other } = user._doc;
+
+      const publication = await Publication.find({ userId: user._id });
+
+      other.publications = publication;
+
+      res.json(other);
       return;
     }
 
-    const { passwordHash, token, ...other } = user._doc;
-
-    const publication = await Publication.find({ userId: user._id });
-
-    other.publications = publication;
-
-    res.json(other);
+    res.status(404).json({ error: "Usuario invalido!" });
   },
   listAllUsers: async (req: Request, res: Response) => {
     let { offset = 0, limit = 15, q } = req.query;
@@ -126,10 +132,10 @@ export default {
     res.json({ users, total });
   },
   followUser: async (req: Request, res: Response) => {
-    const currentUser = await User.findOne({ token: req.body.token });
-    const user = await User.findOne({ _id: req.params.id });
-
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      const currentUser = await User.findOne({ token: req.body.token });
+      const user = await User.findOne({ _id: req.params.id });
+
       if (!user) {
         res.status(404).json({ error: "Usuario não existe!" });
         return;
@@ -154,10 +160,9 @@ export default {
     res.status(404).json({ error: "Usuario não encontrado!" });
   },
   unfollowUser: async (req: Request, res: Response) => {
-    const currentUser = await User.findOne({ token: req.body.token });
-    const user = await User.findOne({ _id: req.params.id });
-
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      const currentUser = await User.findOne({ token: req.body.token });
+      const user = await User.findOne({ _id: req.params.id });
       if (!user) {
         res.status(404).json({ error: "Usuario não existe!" });
         return;
@@ -174,6 +179,7 @@ export default {
         res.json({});
         return;
       }
+
       res.status(403).json({ error: "Você não segue este usuario!" });
       return;
     }
@@ -198,6 +204,6 @@ export default {
       return;
     }
 
-    res.json({ error: "Publicação não encontrada" });
+    res.status(404).json({ error: "Publicação não encontrada" });
   },
 };

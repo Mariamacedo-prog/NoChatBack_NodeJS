@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { validationResult, matchedData } from "express-validator";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { promises } from "fs";
 import User from "../models/User";
 import Publication from "../models/Publication";
 import { v4 as uuidv4 } from "uuid";
@@ -30,11 +29,9 @@ export default {
 
     let newPublication = new Publication();
 
-    if (
-      data.category !== "publication" &&
-      data.category !== "article" &&
-      data.category !== "picture"
-    ) {
+    let categories: string[] = ["publication", "article", "picture"];
+
+    if (!categories.includes(data.category)) {
       res.status(400).json({ error: "Categoria não existente" });
       return;
     }
@@ -44,6 +41,13 @@ export default {
     newPublication.description = data.description;
 
     if (data.category === "article") {
+      if (!data.title || !data.description) {
+        res
+          .status(400)
+          .json({ error: "Artigos precisam de titulo e conteúdo!" });
+        return;
+      }
+
       newPublication.title = data.title;
     }
 
@@ -89,9 +93,9 @@ export default {
         publication.title = title;
       }
 
-      await publication.save();
+      const updatedPublication = await publication.save();
 
-      res.json(publication);
+      res.json(updatedPublication);
       return;
     }
 
@@ -175,6 +179,10 @@ export default {
         return;
       }
       let date = new Date();
+      if (msg == "") {
+        res.json({ error: "Digite algo..." });
+        return;
+      }
 
       await post.updateOne({
         $push: {
@@ -190,6 +198,7 @@ export default {
       res.json({});
       return;
     }
+
     res.json({ error: "Publicação não encontrado" });
   },
   deleteCommentAction: async (req: Request, res: Response) => {
@@ -205,12 +214,13 @@ export default {
       return;
     }
 
-    const comment: string[] = [];
+    const messageAuhor: string[] = [];
+
     post.comment.map((msg: MessageType) =>
-      msg.id == id ? comment.push(msg.author) : false
+      msg.id == id ? messageAuhor.push(msg.author) : false
     );
 
-    if (comment[0] == currentUser._id + "") {
+    if (messageAuhor[0] == currentUser._id + "") {
       await Publication.updateOne(
         {
           _id: post._id,

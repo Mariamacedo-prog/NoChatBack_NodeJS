@@ -50,7 +50,11 @@ export default {
       "image/jpg",
       "image/webp",
     ];
-    cb(null, allowed.includes(file.mimetype));
+    if (allowed.includes(file.mimetype)) {
+      cb(null, allowed.includes(file.mimetype));
+    } else {
+      cb(new Error("Imagens somente: jpeg, jpg e png"));
+    }
   },
   limits: { fieldSize: MAX_SIZE_TWO_MEGABYTES },
 };

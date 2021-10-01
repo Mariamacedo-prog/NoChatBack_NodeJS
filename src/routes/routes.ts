@@ -1,4 +1,5 @@
 import { Request, Response, Router } from "express";
+import asyncHandler from "express-async-handler";
 import AuthValidator from "../validators/AuthValidator";
 import UserValidator from "../validators/UserValidator";
 import PubliValidator from "../validators/PubliValidator";
@@ -15,46 +16,77 @@ router.get("/", (req: Request, res: Response) => {
   res.json({ pong: true });
 });
 //AUTH ROUTES
-router.post("/signin", AuthValidator.signin, AuthController.signin);
-router.post("/signup", AuthValidator.signup, AuthController.signup);
+router.post(
+  "/signin",
+  AuthValidator.signin,
+  asyncHandler(AuthController.signin)
+);
+router.post(
+  "/signup",
+  AuthValidator.signup,
+  asyncHandler(AuthController.signup)
+);
 //USERS ROUTES
-router.get("/user/me", Auth.private, UserController.userInfo);
+router.get("/user/me", Auth.private, asyncHandler(UserController.userInfo));
 router.put(
   "/user/me",
   multer(upload).single("avatar"),
   UserValidator.editUserInfo,
   Auth.private,
-
-  UserController.editUserInfo
+  asyncHandler(UserController.editUserInfo)
 );
-router.delete("/user/:id", UserController.deleteAction);
-router.get("/user/:id", Auth.private, UserController.listOneUser);
+router.delete("/user/:id", asyncHandler(UserController.deleteAction));
+router.get("/user/:id", Auth.private, asyncHandler(UserController.listOneUser));
 router.get("/users", Auth.private, UserController.listAllUsers);
 //PUBLICATIONS ROUTES
-router.get("/publications", Auth.private, PubliController.findAllPublications);
+router.get(
+  "/publications",
+  Auth.private,
+  asyncHandler(PubliController.findAllPublications)
+);
 router.post(
   "/publication",
   multer(upload).single("image"),
   PubliValidator.createAction,
   Auth.private,
-  PubliController.createAction
+  asyncHandler(PubliController.createAction)
 );
 router.put(
   "/publication/edit/:id",
   PubliValidator.editAction,
   Auth.private,
-  PubliController.editAction
+  asyncHandler(PubliController.editAction)
 );
 router.delete(
   "/publication/delete/:id",
   Auth.private,
-  PubliController.deleteAction
+  asyncHandler(PubliController.deleteAction)
 );
-router.get("/publication/:id", Auth.private, PubliController.findPublication);
+router.get(
+  "/publication/:id",
+  Auth.private,
+  asyncHandler(PubliController.findPublication)
+);
 
-router.put("/follow/:id", Auth.private, UserController.followUser);
-router.put("/unfollow/:id", Auth.private, UserController.unfollowUser);
-router.put("/like/:id", Auth.private, UserController.likePost);
-router.put("/comment", Auth.private, PubliController.createCommentAction);
-router.put("/comment/:id", Auth.private, PubliController.deleteCommentAction);
+router.put(
+  "/follow/:id",
+  Auth.private,
+  asyncHandler(UserController.followUser)
+);
+router.put(
+  "/unfollow/:id",
+  Auth.private,
+  asyncHandler(UserController.unfollowUser)
+);
+router.put("/like/:id", Auth.private, asyncHandler(UserController.likePost));
+router.put(
+  "/comment",
+  Auth.private,
+  asyncHandler(PubliController.createCommentAction)
+);
+router.put(
+  "/comment/:id",
+  Auth.private,
+  asyncHandler(PubliController.deleteCommentAction)
+);
 export default router;

@@ -46,7 +46,7 @@ export default {
         return;
       }
 
-      res.json(usersChat);
+      res.json(usersChat[0]);
       return;
     }
     res.json({ error: "Não foi possível localizar o Chat!" });
@@ -178,7 +178,7 @@ export default {
       res.json({ error: "Não foi possível encaminhar a mensagem" });
     }
   },
-  deleteAction: async (req: Request, res: Response) => {
+  deleteMessageAction: async (req: Request, res: Response) => {
     const { id } = req.params;
     const currentUser = await User.findOne({ token: req.body.token });
 
@@ -214,5 +214,20 @@ export default {
     } else {
       res.status(404).json({ error: "Você não pode apagar essa mensagem!" });
     }
+  },
+  getChatAction: async (req: Request, res: Response) => {
+    const currentUser = await User.findOne({ token: req.query.token });
+    const chat = await Chat.findOne({ chatId: req.params.id });
+    if (!chat) {
+      res.status(404).json({ error: "Chat não encontrado!" });
+      return;
+    }
+
+    if (!chat.users.includes(currentUser._id + "")) {
+      res.status(400).json({ error: "Chat não disponível para este usuario!" });
+      return;
+    }
+
+    res.json(chat);
   },
 };

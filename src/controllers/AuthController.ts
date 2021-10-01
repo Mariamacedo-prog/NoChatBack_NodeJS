@@ -6,12 +6,10 @@ import User from "../models/User";
 export default {
   signin: async (req: Request, res: Response) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-      res.json({ error: errors.mapped() });
+      res.status(400).json({ error: errors.mapped() });
       return;
     }
-
     const data = matchedData(req);
 
     const user = await User.findOne({ email: data.email });
@@ -37,16 +35,14 @@ export default {
   signup: async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.json({ error: errors.mapped() });
+      res.status(400).json({ error: errors.mapped() });
       return;
     }
     const data = matchedData(req);
 
     const userEmail = await User.findOne({ email: data.email });
     if (userEmail) {
-      res.json({
-        error: { email: { msg: "E-mail já existe!" } },
-      });
+      res.status(400).json({ error: "E-mail já existe!" });
       return;
     }
 
@@ -54,9 +50,7 @@ export default {
 
     const searchName = await User.findOne({ name: username });
     if (searchName) {
-      res.json({
-        error: { name: { msg: "Username já existe!" } },
-      });
+      res.status(400).json({ error: "Username já existe!" });
       return;
     }
 

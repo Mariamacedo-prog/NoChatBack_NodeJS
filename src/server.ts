@@ -25,16 +25,17 @@ server.use(chatRoutes);
 
 server.use((req: Request, res: Response) => {
   res.status(404);
-  res.json({ error: "Erro!! Página encontrada" });
+  res.json({ error: "Erro!! Página não encontrada" });
 });
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(400);
-
+  console.log(err);
   if (err instanceof MulterError) {
     res.json({ error: err.code });
+    return;
   }
-  console.log(err);
-  res.json({ error: "Ocorreu um erro" });
+
+  res.json({ error: err.message });
 };
 
 server.use(errorHandler);
