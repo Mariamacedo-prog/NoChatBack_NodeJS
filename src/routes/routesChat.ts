@@ -20,8 +20,8 @@ router.put(
   Auth.private,
   asyncHandler(ChatController.deleteMessageAction)
 );
-router.get(
-  "/direct/nc/:id",
+router.post(
+  "/direct/nc",
   Auth.private,
   asyncHandler(ChatController.getChatAction)
 );

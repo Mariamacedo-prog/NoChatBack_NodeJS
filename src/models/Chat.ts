@@ -14,6 +14,8 @@ export interface ChatType extends Document {
   messages: [];
   users: [];
   chatId: string;
+  username?: string;
+  avatar?: string;
 }
 
 const schema = new Schema<ChatType>({

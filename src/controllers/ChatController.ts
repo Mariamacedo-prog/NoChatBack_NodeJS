@@ -12,6 +12,11 @@ interface MessageType {
   id: string;
 }
 
+interface UserInfo {
+  username?: string;
+  avatar?: string;
+}
+
 export default {
   createAction: async (req: Request, res: Response) => {
     const { token, userId } = req.body;
@@ -46,7 +51,16 @@ export default {
         return;
       }
 
-      res.json(usersChat[0]);
+      let userInfo: any = { username: user.name };
+
+      if (user.avatar) {
+        userInfo.avatar = user.avatar;
+      }
+
+      res.json({
+        chat: usersChat[0],
+        userInfo,
+      });
       return;
     }
     res.json({ error: "Não foi possível localizar o Chat!" });
@@ -216,8 +230,8 @@ export default {
     }
   },
   getChatAction: async (req: Request, res: Response) => {
-    const currentUser = await User.findOne({ token: req.query.token });
-    const chat = await Chat.findOne({ chatId: req.params.id });
+    const currentUser = await User.findOne({ token: req.body.token });
+    const chat = await Chat.findOne({ chatId: req.body.id });
     if (!chat) {
       res.status(404).json({ error: "Chat não encontrado!" });
       return;

@@ -20,10 +20,6 @@ export default {
 
     const { passwordHash, ...other } = user._doc;
 
-    const publication = await Publication.find({ userId: user._id });
-
-    other.publications = publication;
-
     res.json(other);
   },
   editUserInfo: async (req: Request, res: Response) => {
@@ -90,26 +86,30 @@ export default {
     res.status(404).json({ error: "Usuario não encontrado" });
   },
   listOneUser: async (req: Request, res: Response) => {
-    let id = req.params.id;
-
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      const user = await User.findOne({ _id: id });
-      if (!user) {
-        res.json({ error: "Usuario invalido!" });
-        return;
-      }
-
-      const { passwordHash, token, ...other } = user._doc;
-
-      const publication = await Publication.find({ userId: user._id });
-
-      other.publications = publication;
-
-      res.json(other);
+    let name = req.body.name;
+    const user = await User.findOne({ name });
+    if (!user) {
+      res.status(404).json({ error: "Usuario não encontrado!" });
       return;
     }
 
-    res.status(404).json({ error: "Usuario invalido!" });
+    const publications = await Publication.find({ userId: user._id }).sort({
+      createdAt: -1,
+    });
+
+    const { passwordHash, token, ...other } = user._doc;
+
+    const posts = publications.map((item) => {
+      const newItem: any = { ...item._doc };
+      newItem.username = user.name;
+      if (user.avatar) {
+        newItem.avatar = user.avatar;
+      }
+
+      return newItem;
+    });
+
+    res.json({ user: other, publications: posts });
   },
   listAllUsers: async (req: Request, res: Response) => {
     let { offset = 0, limit = 15, q } = req.query;
@@ -196,12 +196,13 @@ export default {
       }
       if (!publication.like.includes(user._id)) {
         await publication.updateOne({ $push: { like: user._id + "" } });
+        res.json({ liked: true });
+        return;
       } else {
         await publication.updateOne({ $pull: { like: user._id + "" } });
+        res.json({ liked: false });
+        return;
       }
-
-      res.json({});
-      return;
     }
 
     res.status(404).json({ error: "Publicação não encontrada" });

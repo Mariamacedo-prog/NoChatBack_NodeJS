@@ -4,11 +4,12 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { MulterError } from "multer";
 import { mongoConnect } from "./database/mongo";
-import mainRoutes from "./routes/routes";
-import chatRoutes from "./routes/chatRoutes";
+import userRoutes from "./routes/routes";
+import publicationRoutes from "./routes/routesPublication";
+import chatRoutes from "./routes/routesChat";
 dotenv.config();
 mongoConnect();
-//
+
 const server = express();
 
 var corsOptions = {
@@ -20,7 +21,8 @@ server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.static(path.join(__dirname, "..", "public")));
 
-server.use(mainRoutes);
+server.use(userRoutes);
+server.use(publicationRoutes);
 server.use(chatRoutes);
 
 server.use((req: Request, res: Response) => {

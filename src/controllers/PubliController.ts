@@ -128,23 +128,51 @@ export default {
     }
   },
   findPublication: async (req: Request, res: Response) => {
-    let id = req.params.id;
-
+    let id = req.body.id;
     if (mongoose.Types.ObjectId.isValid(id)) {
       const publication = await Publication.findOne({ _id: id });
-
       if (!publication) {
         res.status(404).json({ error: "Publicação não encontrada!" });
         return;
       }
+      const user = await User.findOne({ _id: publication.userId });
 
-      res.json(publication);
-    } else {
-      res.status(404).json({ error: "Publicação não encontrada!" });
+      if (!user) {
+        res.status(404).json({ error: "Usuario não encontrado!" });
+        return;
+      }
+
+      const infoPublication = { ...publication._doc };
+      infoPublication.username = user.name;
+      if (user.avatar) {
+        infoPublication.avatar = user.avatar;
+      }
+
+      let allUsers = await User.find();
+      const commentUser = infoPublication.comment.map((item: any) => {
+        const ownerComment: any = allUsers.filter(
+          (user: any) => user._id + "" == item.author
+        );
+
+        if (!ownerComment) {
+          res.json({ error: "Nenhuma usuario encontrado" });
+          return;
+        }
+        const comment: any = { ...item };
+        comment.username = ownerComment[0].name;
+        if (ownerComment[0].avatar) {
+          comment.avatar = ownerComment[0].avatar;
+        }
+        return comment;
+      });
+      infoPublication.comment = commentUser;
+      res.json(infoPublication);
+      return;
     }
+    res.status(404).json({ error: "Publicação não encontrada!" });
   },
   findAllPublications: async (req: Request, res: Response) => {
-    let { offset = 0, limit = 15, cat, q } = req.query;
+    let { sort = "asc", offset = 0, limit = 15, cat, q, author } = req.query;
 
     let filters: any = {};
 
@@ -156,7 +184,11 @@ export default {
       filters.category = { $regex: cat, $options: "i" };
     }
 
+    if (author) {
+      filters.userId = author;
+    }
     const publications = await Publication.find(filters)
+      .sort({ createdAt: sort == "desc" ? -1 : 1 })
       .skip(parseInt(offset as string))
       .limit(parseInt(limit as string))
       .exec();
@@ -166,7 +198,44 @@ export default {
       return;
     }
 
-    res.json({ publications, total: publications.length });
+    let user = await User.find();
+
+    const posts = publications.map((item) => {
+      const ownerPost: any = user.filter(
+        (user) => user._id + "" == item.userId
+      );
+      if (!ownerPost) {
+        res.json({ error: "Nenhuma usuario encontrado" });
+        return;
+      }
+      const newItem: any = { ...item._doc };
+
+      newItem.username = ownerPost[0].name;
+      if (ownerPost[0].avatar) {
+        newItem.avatar = ownerPost[0].avatar;
+      }
+
+      const commentUser = item.comment.map((item: any) => {
+        const ownerComment: any = user.filter(
+          (user) => user._id + "" == item.author
+        );
+        if (!ownerComment) {
+          res.json({ error: "Nenhuma usuario encontrado" });
+          return;
+        }
+        const comment: any = { ...item };
+        comment.username = ownerComment[0].name;
+        if (ownerComment[0].avatar) {
+          comment.avatar = ownerComment[0].avatar;
+        }
+        return comment;
+      });
+
+      newItem.comment = commentUser;
+      return newItem;
+    });
+
+    res.json({ publications: posts, total: publications.length });
   },
   createCommentAction: async (req: Request, res: Response) => {
     const { token, postId, type, msg } = req.body;
