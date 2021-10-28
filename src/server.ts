@@ -9,13 +9,13 @@ import http from "http";
 import userRoutes from "./routes/routes";
 import publicationRoutes from "./routes/routesPublication";
 import chatRoutes from "./routes/routesChat";
-dotenv.config();
-mongoConnect();
-
 type socketUsers = {
   userId: string;
   socketId: string;
 };
+
+dotenv.config();
+mongoConnect();
 
 const server = express();
 
