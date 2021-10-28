@@ -4,17 +4,26 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { MulterError } from "multer";
 import { mongoConnect } from "./database/mongo";
+import { Server } from "socket.io";
+import http from "http";
 import userRoutes from "./routes/routes";
 import publicationRoutes from "./routes/routesPublication";
 import chatRoutes from "./routes/routesChat";
 dotenv.config();
 mongoConnect();
 
+type socketUsers = {
+  userId: string;
+  socketId: string;
+};
+
 const server = express();
 
 var corsOptions = {
   origin: "*",
 };
+
+const serverHttp = http.createServer(server);
 
 server.use(cors(corsOptions));
 server.use(express.json());
@@ -42,6 +51,35 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 server.use(errorHandler);
 
-server.listen(process.env.PORT || 80, () => {
+const io = new Server(serverHttp, { cors: { origin: "*" } });
+
+export let users: socketUsers[] = [];
+
+const addUser = (userId: string, socketId: string) => {
+  !users.some((user) => user.userId === userId) &&
+    users.push({ userId, socketId });
+};
+const removeUser = (socketId: string) => {
+  users = users.filter((user) => user.socketId === socketId);
+};
+
+io.on("connection", (socket) => {
+  console.log(`Usuário conectado no socket: ${socket.id}`);
+
+  socket.on("addUser", (userId) => {
+    addUser(userId, socket.id);
+    io.emit("getUsers", users);
+  });
+
+  socket.on("disconnect", () => {
+    console.info(`Usuário saiu: ${socket.id}`);
+    removeUser(socket.id);
+    io.emit("getUsers", users);
+  });
+});
+
+serverHttp.listen(process.env.PORT || 80, () => {
   console.log(`Porta: ${process.env.PORT}`);
 });
+
+export { io };

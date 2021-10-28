@@ -1,5 +1,5 @@
 import { Request } from "express";
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
 import path from "path";
 import crypto from "crypto";
 import aws from "aws-sdk";
@@ -8,6 +8,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+type FileAws = {
+  originalname?: string;
+  key?: string;
+  mimetype?: string;
+};
+
 const MAX_SIZE_TWO_MEGABYTES = 2 * 1024 * 1024;
 
 const storageTypes = {
@@ -15,7 +21,7 @@ const storageTypes = {
     destination: (req, file, cb) => {
       cb(null, path.resolve(__dirname, "..", "..", "tmp"));
     },
-    filename: (req, file: any, cb) => {
+    filename: (req, file: FileAws, cb) => {
       crypto.randomBytes(16, (err, hash) => {
         file.key = `${hash.toString("hex")}-${file.originalname}`;
 
@@ -43,7 +49,7 @@ const storageTypes = {
 export default {
   dest: path.resolve(__dirname, "..", "..", "tmp"),
   storage: storageTypes.s3,
-  fileFilter: (req: Request, file: any, cb: any) => {
+  fileFilter: (req: Request, file: FileAws, cb: FileFilterCallback) => {
     const allowed: string[] = [
       "image/png",
       "image/jpeg",

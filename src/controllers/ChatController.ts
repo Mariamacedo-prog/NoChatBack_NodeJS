@@ -3,6 +3,7 @@ import User from "../models/User";
 import mongoose from "mongoose";
 import Chat, { ChatType, ChatUserType } from "../models/Chat";
 import { v4 as uuidv4 } from "uuid";
+import { io, users } from "../server";
 
 interface MessageType {
   author: string;
@@ -12,10 +13,10 @@ interface MessageType {
   id: string;
 }
 
-interface UserInfo {
+type UserData = {
   username?: string;
   avatar?: string;
-}
+};
 
 export default {
   createAction: async (req: Request, res: Response) => {
@@ -25,7 +26,7 @@ export default {
       const currentUser = await User.findOne({ token });
       const user = await User.findOne({ _id: userId });
       if (!user) {
-        res.json({ error: "Usuario não encontrado" });
+        res.json({ error: "Usuário não encontrado" });
         return;
       }
 
@@ -51,7 +52,7 @@ export default {
         return;
       }
 
-      let userInfo: any = { username: user.name };
+      let userInfo: UserData = { username: user.name };
 
       if (user.avatar) {
         userInfo.avatar = user.avatar;
@@ -72,7 +73,7 @@ export default {
       const currentUser = await User.findOne({ token });
       const user = await User.findOne({ _id: userId });
       if (!user) {
-        res.json({ error: "Usuario não encontrado" });
+        res.json({ error: "Usuário não encontrado" });
         return;
       }
 
@@ -89,18 +90,21 @@ export default {
 
       let date = new Date();
 
+      const newMessage = {
+        author: currentUser._id + "",
+        msg,
+        date,
+        type,
+        id: uuidv4(),
+        to: user._id + "",
+      };
+
       if (usersChat.length > 0) {
         await Chat.updateOne(
           { chatId: usersChat[0] },
           {
             $push: {
-              messages: {
-                author: currentUser._id + "",
-                msg,
-                date,
-                type,
-                id: uuidv4(),
-              },
+              messages: newMessage,
             },
           }
         );
@@ -185,6 +189,8 @@ export default {
           );
         }
 
+        io.emit("getMessage", newMessage);
+
         res.json({});
         return;
       }
@@ -238,7 +244,7 @@ export default {
     }
 
     if (!chat.users.includes(currentUser._id + "")) {
-      res.status(400).json({ error: "Chat não disponível para este usuario!" });
+      res.status(400).json({ error: "Chat não disponível para este Usuário!" });
       return;
     }
 

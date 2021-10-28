@@ -7,13 +7,25 @@ import Publication from "../models/Publication";
 import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();
-
 interface MessageType {
   author: string;
   msg: string;
   date: Date;
   type: string;
   id: string;
+}
+
+type CommentData = {
+  author: string;
+  msg: string;
+  date: Date | string;
+  type: string;
+  id: string;
+  username?: string;
+  avatar?: string;
+};
+interface FileData extends Express.Multer.File {
+  location?: string;
 }
 
 export default {
@@ -52,7 +64,7 @@ export default {
     }
 
     if (req.file) {
-      const fileKey: any = req.file;
+      const fileKey: FileData = req.file;
 
       newPublication.image = `${fileKey.location}`;
     }
@@ -82,7 +94,7 @@ export default {
       if (loggedUser._id != publication.userId) {
         res
           .status(400)
-          .json({ error: "Publicação não pertence a este usuario!" });
+          .json({ error: "Publicação não pertence a este Usuário!" });
         return;
       }
       if (description) {
@@ -116,7 +128,7 @@ export default {
       if (user._id + "" != publication.userId) {
         res
           .status(400)
-          .json({ error: "Esta publição não pertence ao usuario" });
+          .json({ error: "Esta publicação não pertence ao Usuário" });
         return;
       }
 
@@ -138,7 +150,7 @@ export default {
       const user = await User.findOne({ _id: publication.userId });
 
       if (!user) {
-        res.status(404).json({ error: "Usuario não encontrado!" });
+        res.status(404).json({ error: "Usuário não encontrado!" });
         return;
       }
 
@@ -149,22 +161,25 @@ export default {
       }
 
       let allUsers = await User.find();
-      const commentUser = infoPublication.comment.map((item: any) => {
-        const ownerComment: any = allUsers.filter(
-          (user: any) => user._id + "" == item.author
+      const commentUser = infoPublication.comment.map((item: CommentData) => {
+        const ownerComment = allUsers.filter(
+          (user) => user._id + "" == item.author
         );
 
         if (!ownerComment) {
-          res.json({ error: "Nenhuma usuario encontrado" });
+          res.json({ error: "Nenhuma usuário encontrado" });
           return;
         }
-        const comment: any = { ...item };
+        const comment: CommentData = { ...item };
         comment.username = ownerComment[0].name;
+
         if (ownerComment[0].avatar) {
           comment.avatar = ownerComment[0].avatar;
         }
+
         return comment;
       });
+
       infoPublication.comment = commentUser;
       res.json(infoPublication);
       return;
@@ -201,29 +216,29 @@ export default {
     let user = await User.find();
 
     const posts = publications.map((item) => {
-      const ownerPost: any = user.filter(
-        (user) => user._id + "" == item.userId
-      );
+      const ownerPost = user.filter((user) => user._id + "" == item.userId);
+
       if (!ownerPost) {
-        res.json({ error: "Nenhuma usuario encontrado" });
+        res.json({ error: "Nenhuma Usuário encontrado" });
         return;
       }
-      const newItem: any = { ...item._doc };
+
+      const newItem = { ...item._doc };
 
       newItem.username = ownerPost[0].name;
       if (ownerPost[0].avatar) {
         newItem.avatar = ownerPost[0].avatar;
       }
 
-      const commentUser = item.comment.map((item: any) => {
-        const ownerComment: any = user.filter(
+      const commentUser = item.comment.map((item: CommentData) => {
+        const ownerComment = user.filter(
           (user) => user._id + "" == item.author
         );
         if (!ownerComment) {
-          res.json({ error: "Nenhuma usuario encontrado" });
+          res.json({ error: "Nenhuma Usuário encontrado" });
           return;
         }
-        const comment: any = { ...item };
+        const comment: CommentData = { ...item };
         comment.username = ownerComment[0].name;
         if (ownerComment[0].avatar) {
           comment.avatar = ownerComment[0].avatar;

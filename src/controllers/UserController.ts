@@ -8,13 +8,17 @@ import Publication from "../models/Publication";
 
 dotenv.config();
 
+interface FileData extends Express.Multer.File {
+  location?: string;
+}
+
 export default {
   userInfo: async (req: Request, res: Response) => {
     let token = req.query.token as string;
     const user = await User.findOne({ token });
 
     if (!user) {
-      res.json({ error: "Usuario invalido!" });
+      res.json({ error: "Usuário invalido!" });
       return;
     }
 
@@ -65,7 +69,7 @@ export default {
     }
 
     if (req.file) {
-      const fileKey: any = req.file;
+      const fileKey: FileData = req.file;
 
       userUpdate.avatar = `${fileKey.location}`;
     }
@@ -83,13 +87,13 @@ export default {
       return;
     }
 
-    res.status(404).json({ error: "Usuario não encontrado" });
+    res.status(404).json({ error: "Usuário não encontrado" });
   },
   listOneUser: async (req: Request, res: Response) => {
     let name = req.body.name;
     const user = await User.findOne({ name });
     if (!user) {
-      res.status(404).json({ error: "Usuario não encontrado!" });
+      res.status(404).json({ error: "Usuário não encontrado!" });
       return;
     }
 
@@ -100,7 +104,7 @@ export default {
     const { passwordHash, token, ...other } = user._doc;
 
     const posts = publications.map((item) => {
-      const newItem: any = { ...item._doc };
+      const newItem = { ...item._doc };
       newItem.username = user.name;
       if (user.avatar) {
         newItem.avatar = user.avatar;
@@ -137,7 +141,7 @@ export default {
       const user = await User.findOne({ _id: req.params.id });
 
       if (!user) {
-        res.status(404).json({ error: "Usuario não existe!" });
+        res.status(404).json({ error: "Usuário não existe!" });
         return;
       }
 
@@ -153,18 +157,18 @@ export default {
         return;
       }
 
-      res.status(403).json({ error: "Você já segue este usuario!" });
+      res.status(403).json({ error: "Você já segue este Usuário!" });
       return;
     }
 
-    res.status(404).json({ error: "Usuario não encontrado!" });
+    res.status(404).json({ error: "Usuário não encontrado!" });
   },
   unfollowUser: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
       const currentUser = await User.findOne({ token: req.body.token });
       const user = await User.findOne({ _id: req.params.id });
       if (!user) {
-        res.status(404).json({ error: "Usuario não existe!" });
+        res.status(404).json({ error: "Usuário não existe!" });
         return;
       }
 
@@ -180,10 +184,10 @@ export default {
         return;
       }
 
-      res.status(403).json({ error: "Você não segue este usuario!" });
+      res.status(403).json({ error: "Você não segue este Usuário!" });
       return;
     }
-    res.status(404).json({ error: "Usuario não encontrado!" });
+    res.status(404).json({ error: "Usuário não encontrado!" });
   },
   likePost: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
