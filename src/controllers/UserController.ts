@@ -193,22 +193,22 @@ export default {
   },
   likePost: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      const user = await User.findOne({ token: req.body.token }).exec();
+      const userT = await User.findOne({ token: req.body.token }).exec();
       const publication = await Publication.findOne({ _id: req.params.id }).exec();
 
       if (!publication) {
         res.status(404).json({ error: "Publicação não encontrada!" });
         return;
       }
-      if (!publication.like.includes(user._id + "")) {
-        await publication.updateOne({ $push: { like: user._id + "" } });
+      if (!publication.like.includes(userT._id + "")) {
+        await publication.updateOne({ $push: { like: userT._id + "" } });
         res.json({ liked: true });
         return;
       } else {
-        await publication.updateOne({ $pull: { like: user._id + "" } });
+        await publication.updateOne({ $pull: { like: userT._id + "" } });
         res.json({ liked: false });
         return;
-      }    
+      }       
     }
 
     res.status(404).json({ error: "Publicação não encontrada" });
