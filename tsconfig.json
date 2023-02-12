@@ -9,6 +9,11 @@
     "noImplicitAny": true,
     "moduleResolution": "node",
     "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+        "*": ["node_modules/*", "src/*"]
+    },
     "outDir": "dist"
-  }
+  },
+  "include": ["./src/**/*"]
 }
