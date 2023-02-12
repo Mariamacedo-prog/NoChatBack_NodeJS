@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
 });
 
 serverHttp.listen(process.env.PORT || 80, () => {
-  console.log(`Porta: ${process.env.PORT}`);
+  console.log(`Porta: `);
 });
 
 export { io };
