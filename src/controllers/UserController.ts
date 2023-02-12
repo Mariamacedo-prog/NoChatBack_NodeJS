@@ -208,7 +208,7 @@ export default {
         await publication.updateOne({ $pull: { like: user._id + "" } });
         res.json({ liked: false });
         return;
-      }
+      }    
     }
 
     res.status(404).json({ error: "Publicação não encontrada" });
