@@ -3,27 +3,14 @@ import { validationResult, matchedData } from "express-validator";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "../models/User";
-import Publication from "../models/Publication";
+import Publication, { PublicationType } from "../models/Publication";
 import { v4 as uuidv4 } from "uuid";
+import { MessageType } from '../models/Chat';
+import { CommentData } from '../models/Publication';
 
 dotenv.config();
-interface MessageType {
-  author: string;
-  msg: string;
-  date: Date;
-  type: string;
-  id: string;
-}
 
-type CommentData = {
-  author: string;
-  msg: string;
-  date: Date | string;
-  type: string;
-  id: string;
-  username?: string;
-  avatar?: string;
-};
+
 interface FileData extends Express.Multer.File {
   location?: string;
 }
@@ -142,7 +129,7 @@ export default {
   findPublication: async (req: Request, res: Response) => {
     let id = req.body.id;
     if (mongoose.Types.ObjectId.isValid(id)) {
-      const publication = await Publication.findOne({ _id: id });
+      const publication: PublicationType = await Publication.findOne({ _id: id });
       if (!publication) {
         res.status(404).json({ error: "Publicação não encontrada!" });
         return;

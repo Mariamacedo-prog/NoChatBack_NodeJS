@@ -12,7 +12,8 @@ export default {
     }
     const data = matchedData(req);
 
-    const user = await User.findOne({ email: data.email });
+    let user = await User.findOne({ email: data.email }).exec();
+    
     if (!user) {
       res.status(400).json({ error: "E-mail e/ou senha invalido!" });
       return;
@@ -40,7 +41,7 @@ export default {
     }
     const data = matchedData(req);
 
-    const userEmail = await User.findOne({ email: data.email });
+    const userEmail = await User.findOne({ email: data.email }).exec();
     if (userEmail) {
       res.status(400).json({ error: "E-mail já existe!" });
       return;
@@ -48,7 +49,7 @@ export default {
 
     const username = data.name.split(" ").join("_").toLowerCase();
 
-    const searchName = await User.findOne({ name: username });
+    const searchName = await User.findOne({ name: username }).exec();
     if (searchName) {
       res.status(400).json({ error: "Username já existe!" });
       return;

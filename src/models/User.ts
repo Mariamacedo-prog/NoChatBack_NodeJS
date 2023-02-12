@@ -1,4 +1,4 @@
-import { Schema, model, connection, Document } from "mongoose";
+import { Schema, model, Model, connection, Document } from "mongoose";
 
 export interface UserType extends Document {
   email: string;
@@ -7,9 +7,10 @@ export interface UserType extends Document {
   name: string;
   description?: string;
   avatar?: string;
-  followings: [];
-  followers: [];
+  followings: string[];
+  followers: string[];
   chats: [];
+  _doc?: any;
 }
 
 const schema = new Schema<UserType>(
@@ -29,6 +30,4 @@ const schema = new Schema<UserType>(
 
 const modelName: string = "User";
 
-export default connection && connection.models[modelName]
-  ? connection.models[modelName]
-  : model<UserType>(modelName, schema);
+export default model<UserType>(modelName, schema);

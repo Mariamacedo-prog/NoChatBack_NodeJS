@@ -1,5 +1,12 @@
 import { Schema, model, connection, Document } from "mongoose";
 
+export interface MessageType {
+  author: string;
+  msg: string;
+  date: Date;
+  type: string;
+  id: string;
+}
 export interface ChatUserType {
   chatId: string;
   avatar: string;
@@ -11,11 +18,12 @@ export interface ChatUserType {
 }
 
 export interface ChatType extends Document {
-  messages: [];
-  users: [];
+  messages: MessageType[];
+  users: string[];
   chatId: string;
   username?: string;
   avatar?: string;
+  _doc?: any;
 }
 
 const schema = new Schema<ChatType>({
@@ -26,6 +34,4 @@ const schema = new Schema<ChatType>({
 
 const modelName: string = "Chat";
 
-export default connection && connection.models[modelName]
-  ? connection.models[modelName]
-  : model<ChatType>(modelName, schema);
+export default model<ChatType>(modelName, schema);

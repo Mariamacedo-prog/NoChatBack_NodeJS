@@ -1,17 +1,10 @@
 import { Request, Response } from "express";
-import User from "../models/User";
+import User, { UserType } from "../models/User";
 import mongoose from "mongoose";
 import Chat, { ChatType, ChatUserType } from "../models/Chat";
 import { v4 as uuidv4 } from "uuid";
 import { io, users } from "../server";
-
-interface MessageType {
-  author: string;
-  msg: string;
-  date: Date;
-  type: string;
-  id: string;
-}
+import { MessageType } from '../models/Chat';
 
 type UserData = {
   username?: string;
@@ -23,8 +16,8 @@ export default {
     const { token, userId } = req.body;
 
     if (mongoose.Types.ObjectId.isValid(userId)) {
-      const currentUser = await User.findOne({ token });
-      const user = await User.findOne({ _id: userId });
+      const currentUser: UserType = await User.findOne({ token });
+      const user: UserType = await User.findOne({ _id: userId });
       if (!user) {
         res.json({ error: "Usuário não encontrado" });
         return;
@@ -70,8 +63,8 @@ export default {
     const { token, userId, type, msg } = req.body;
 
     if (mongoose.Types.ObjectId.isValid(userId)) {
-      const currentUser = await User.findOne({ token });
-      const user = await User.findOne({ _id: userId });
+      const currentUser: UserType = await User.findOne({ token });
+      const user: UserType = await User.findOne({ _id: userId });
       if (!user) {
         res.json({ error: "Usuário não encontrado" });
         return;
@@ -236,18 +229,25 @@ export default {
     }
   },
   getChatAction: async (req: Request, res: Response) => {
-    const currentUser = await User.findOne({ token: req.body.token });
-    const chat = await Chat.findOne({ chatId: req.body.id });
-    if (!chat) {
-      res.status(404).json({ error: "Chat não encontrado!" });
-      return;
-    }
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      const currentUser: UserType = await User.findOne({ token: req.body.token });
+      const chat: ChatType = await Chat.findOne({ chatId: req.body.id });
+      if (!chat) {
+        res.status(404).json({ error: "Chat não encontrado!" });
+        return;
+      }
 
-    if (!chat.users.includes(currentUser._id + "")) {
-      res.status(400).json({ error: "Chat não disponível para este Usuário!" });
-      return;
-    }
+      if(!currentUser){
+        res.status(404).json({ error: "Não encontrado!" });
+        return;
+      }
+    
+      if (!chat.users.includes(currentUser._id + "")) {
+        res.status(400).json({ error: "Chat não disponível para este Usuário!" });
+        return;
+      }
 
-    res.json(chat);
+      res.json(chat);
+    }
   },
 };

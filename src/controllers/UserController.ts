@@ -3,7 +3,7 @@ import { validationResult, matchedData } from "express-validator";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import User from "../models/User";
+import User, {UserType} from "../models/User";
 import Publication from "../models/Publication";
 
 dotenv.config();
@@ -15,7 +15,7 @@ interface FileData extends Express.Multer.File {
 export default {
   userInfo: async (req: Request, res: Response) => {
     let token = req.query.token as string;
-    const user = await User.findOne({ token });
+    const user: UserType = await User.findOne({ token }).exec();
 
     if (!user) {
       res.json({ error: "Usuário invalido!" });
@@ -34,10 +34,10 @@ export default {
     }
     const data = matchedData(req);
 
-    const userUpdate = await User.findOne({ token: data.token });
+    const userUpdate = await User.findOne({ token: data.token }).exec();
 
     if (data.email && data.email != userUpdate.email) {
-      const checkEmail = await User.findOne({ email: data.email });
+      const checkEmail = await User.findOne({ email: data.email }).exec();
       if (checkEmail) {
         res.status(400).json({ error: "E-mail já existe" });
         return;
@@ -49,7 +49,7 @@ export default {
     if (data.name) {
       const userName = data.name.split(" ").join("_").toLowerCase();
       if (userName !== userUpdate.name) {
-        const checkUserName = await User.findOne({ name: userName });
+        const checkUserName = await User.findOne({ name: userName }).exec();
 
         if (checkUserName) {
           res.status(400).json({ error: "Username já existe" });
@@ -91,7 +91,7 @@ export default {
   },
   listOneUser: async (req: Request, res: Response) => {
     let name = req.body.name;
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ name }).exec();
     if (!user) {
       res.status(404).json({ error: "Usuário não encontrado!" });
       return;
@@ -137,8 +137,8 @@ export default {
   },
   followUser: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      const currentUser = await User.findOne({ token: req.body.token });
-      const user = await User.findOne({ _id: req.params.id });
+      const currentUser: UserType = await User.findOne({ token: req.body.token });
+      const user: UserType = await User.findOne({ _id: req.params.id });
 
       if (!user) {
         res.status(404).json({ error: "Usuário não existe!" });
@@ -150,12 +150,13 @@ export default {
         return;
       }
 
-      if (!user.followers.includes(currentUser._id)) {
-        await currentUser.updateOne({ $push: { followings: user._id + "" } });
-        await user.updateOne({ $push: { followers: currentUser._id + "" } });
-        res.json({});
-        return;
-      }
+        if (!user.followers.includes(currentUser._id + "")) {
+          await currentUser.updateOne({ $push: { followings: user._id + "" } });
+          await user.updateOne({ $push: { followers: currentUser._id + "" } });
+          res.json({});
+          return;
+        }
+     
 
       res.status(403).json({ error: "Você já segue este Usuário!" });
       return;
@@ -166,18 +167,19 @@ export default {
   unfollowUser: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
       const currentUser = await User.findOne({ token: req.body.token });
+      
       const user = await User.findOne({ _id: req.params.id });
       if (!user) {
         res.status(404).json({ error: "Usuário não existe!" });
         return;
       }
-
+      
       if (currentUser._id == req.params.id) {
         res.status(403).json({ error: "Você não pode seguir você mesmo!" });
         return;
       }
 
-      if (user.followers.includes(currentUser._id)) {
+      if (user.followers.includes(currentUser._id  + "")) {
         await currentUser.updateOne({ $pull: { followings: user._id + "" } });
         await user.updateOne({ $pull: { followers: currentUser._id + "" } });
         res.json({});
@@ -191,14 +193,14 @@ export default {
   },
   likePost: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-      const user = await User.findOne({ token: req.body.token });
-      const publication = await Publication.findOne({ _id: req.params.id });
+      const user = await User.findOne({ token: req.body.token }).exec();
+      const publication = await Publication.findOne({ _id: req.params.id }).exec();
 
       if (!publication) {
         res.status(404).json({ error: "Publicação não encontrada!" });
         return;
       }
-      if (!publication.like.includes(user._id)) {
+      if (!publication.like.includes(user._id + "")) {
         await publication.updateOne({ $push: { like: user._id + "" } });
         res.json({ liked: true });
         return;
