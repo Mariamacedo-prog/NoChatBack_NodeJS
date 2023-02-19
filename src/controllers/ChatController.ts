@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import { Request, Response } from "express";
 import User, { UserType } from "../models/User";
 import mongoose from "mongoose";
@@ -5,6 +6,25 @@ import Chat, { ChatType, ChatUserType } from "../models/Chat";
 import { v4 as uuidv4 } from "uuid";
 import { io, users } from "../server";
 import { MessageType } from '../models/Chat';
+
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import 'firebase/compat/auth';
+import { doc, setDoc } from "firebase/firestore"; 
+
+dotenv.config();
+const firebaseApp = firebase.initializeApp(
+  {
+    apiKey: process.env.apiKey,
+    authDomain: process.env.authDomain,
+    projectId: process.env.projectId,
+    storageBucket: process.env.storageBucket,
+    messagingSenderId: process.env.messagingSenderId,
+    appId: process.env.appId,
+    measurementId: process.env.measurementId
+  }
+);
+const db = firebaseApp.firestore();
 
 type UserData = {
   username?: string;
@@ -23,10 +43,23 @@ export default {
         return;
       }
 
+      // const getChat = await Chat.find({
+      //   users: userId,
+      // });
+
       const usersChat: ChatType[] = [];
 
-      const getChat = await Chat.find({
-        users: userId,
+      const getChat: any[] = [];
+ 
+      const results = await db.collection('chats').get();
+      results.forEach(result => {
+        const data = result.data();
+        console.log(data);
+        for(let item of data.users){
+          if(item === userId){
+            getChat.push(result.data())
+          }
+        }
       });
 
       getChat.map((chatItem) =>
@@ -34,11 +67,29 @@ export default {
           ? usersChat.push(chatItem)
           : false
       );
+ 
+      // if (usersChat.length == 0) {
+      //   const newChat = await Chat.create({
+      //     users: [user._id + "", currentUser._id + ""],
+      //     chatId: uuidv4(),
+      //   });
+
+      //   res.json(newChat);
+      //   return;
+      // }
 
       if (usersChat.length == 0) {
-        const newChat = await Chat.create({
+        let chatIdNumber = uuidv4();
+        // const newChat = await db.collection('chats').add({
+        //   users: [user._id + "", currentUser._id + ""],
+        //   messages: [],
+        //   chatId: uuidv4(),
+        // });
+
+        const newChat = await setDoc(doc(db, "chats", chatIdNumber), {
           users: [user._id + "", currentUser._id + ""],
-          chatId: uuidv4(),
+          messages: [],
+          chatId: chatIdNumber,
         });
 
         res.json(newChat);
@@ -59,6 +110,7 @@ export default {
     }
     res.json({ error: "Não foi possível localizar o Chat!" });
   },
+
   sendMessageAction: async (req: Request, res: Response) => {
     const { token, userId, type, msg } = req.body;
 
@@ -70,16 +122,36 @@ export default {
         return;
       }
 
-      const usersChat: string[] = [];
-      const getChat = await Chat.find({
-        users: userId,
+      let userChat: string = "";
+
+      const getChat: any[] = [];
+ 
+      const results = await db.collection('chats').get();
+      results.forEach(result => {
+        const data = result.data();
+        console.log(data);
+        for(let item of data.users){
+          if(item === userId){
+            getChat.push(result.data())
+          }
+        }
       });
 
       getChat.map((chatItem) =>
-        chatItem.users.includes(currentUser._id + "")
-          ? usersChat.push(chatItem.chatId)
-          : false
+      chatItem.users.includes(currentUser._id + "")
+        ? userChat = chatItem.chatId
+        : false
       );
+
+      // const getChat = await Chat.find({
+      //   users: userId,
+      // });
+
+      // getChat.map((chatItem) =>
+      //   chatItem.users.includes(currentUser._id + "")
+      //     ? usersChat.push(chatItem.chatId)
+      //     : false
+      // );
 
       let date = new Date();
 
@@ -91,24 +163,21 @@ export default {
         id: uuidv4(),
         to: user._id + "",
       };
-
-      if (usersChat.length > 0) {
-        await Chat.updateOne(
-          { chatId: usersChat[0] },
-          {
-            $push: {
-              messages: newMessage,
-            },
-          }
-        );
+      
+      if (userChat.length > 0) {
+        await db.collection('chats')
+        .doc(userChat)
+        .update({
+          messages: firebase.firestore.FieldValue.arrayUnion(newMessage),
+        });
 
         const findChatUser = user.chats.some(
-          (value: ChatUserType) => value.chatId == usersChat[0]
+          (value: ChatUserType) => value.chatId == userChat
         );
 
         if (findChatUser) {
           await User.updateOne(
-            { _id: user._id, "chats.chatId": usersChat[0] },
+            { _id: user._id, "chats.chatId": userChat },
             {
               $set: {
                 "chats.$.avatar": currentUser.avatar
@@ -127,7 +196,7 @@ export default {
             {
               $push: {
                 chats: {
-                  chatId: usersChat[0],
+                  chatId: userChat,
                   avatar: currentUser.avatar
                     ? currentUser.avatar
                     : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuox6vatPBS6w8edvrLbqXzHimyKXOVejMQ&usqp=CAU",
@@ -143,12 +212,12 @@ export default {
         }
 
         const findChatCurrent = currentUser.chats.some(
-          (value: ChatUserType) => value.chatId == usersChat[0]
+          (value: ChatUserType) => value.chatId == userChat
         );
 
         if (findChatCurrent) {
           await User.updateOne(
-            { _id: currentUser._id, "chats.chatId": usersChat[0] },
+            { _id: currentUser._id, "chats.chatId": userChat },
             {
               $set: {
                 "chats.$.avatar": user.avatar
@@ -167,7 +236,7 @@ export default {
             {
               $push: {
                 chats: {
-                  chatId: usersChat[0],
+                  chatId: userChat,
                   avatar: user.avatar
                     ? user.avatar
                     : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLuox6vatPBS6w8edvrLbqXzHimyKXOVejMQ&usqp=CAU",
@@ -231,7 +300,8 @@ export default {
   getChatAction: async (req: Request, res: Response) => {
     if (mongoose.Types.ObjectId.isValid(req.params.id)) {
       const currentUser: UserType = await User.findOne({ token: req.body.token });
-      const chat: ChatType = await Chat.findOne({ chatId: req.body.id });
+      const chat: any = await db.collection('chats').doc(req.body.id).get();
+      //const chat: ChatType = await Chat.findOne({ chatId: req.body.id });
       if (!chat) {
         res.status(404).json({ error: "Chat não encontrado!" });
         return;
